@@ -1,4 +1,9 @@
+mod master_profil;
+mod traits;
+
 use rusqlite::{Connection, Result};
+use crate::master_profil::MasterProfil;
+use crate::traits::Insertable;
 
 fn init_database() -> Result<Connection>{
   let conn = Connection::open("test.db")?;
@@ -32,10 +37,11 @@ fn init_database() -> Result<Connection>{
 }
 
 fn main() -> Result<()> {
-  let db = match init_database() {
-    Ok(db) => db,
-    Err(e) => return Err(e),
-  };
-  db.execute("INSERT INTO master_profil (id_profil, name, master_password) values (72, 'ouiouioui', 'qwertyopjdfg')", ())?;
+  let db = init_database()?;
+  let new_profil = MasterProfil::new(
+    "35".to_string(),
+    "sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
+    "c'est pas hash".to_string());
+  new_profil.insert(&db)?;
   Ok(())
 }

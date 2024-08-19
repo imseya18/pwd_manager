@@ -1,9 +1,7 @@
-mod master_profil;
-mod traits;
+mod entities;
 
 use rusqlite::{Connection, Result};
-use crate::master_profil::MasterProfil;
-use crate::traits::Insertable;
+use crate::entities::*;
 
 fn init_database() -> Result<Connection>{
   let conn = Connection::open("test.db")?;

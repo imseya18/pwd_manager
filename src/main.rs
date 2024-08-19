@@ -1,3 +1,4 @@
+#[warn(unused_variables)]
 mod entities;
 
 use rusqlite::{Connection, Result};
@@ -36,10 +37,10 @@ fn init_database() -> Result<Connection>{
 
 fn main() -> Result<()> {
   let db = init_database()?;
-  let new_profil = MasterProfil::new(
-    "35".to_string(),
-    "sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
-    "c'est pas hash".to_string());
-  new_profil.insert(&db)?;
+  // let new_profil = MasterProfil::new(
+  //   "35".to_string(),
+  //   "sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
+  //   "c'est pas hash".to_string());
+  //je suis cha new_profil.insert(&db)?;
   Ok(())
 }

@@ -14,7 +14,7 @@ type Aes256Cbc = Cbc<Aes256, Pkcs7>;
 #[derive(Debug)]
 pub struct Database {
     pub path: String,
-    pub db: Connection,
+    pub db: Option<Connection>,
 }
 
 impl  Database {
@@ -22,7 +22,7 @@ impl  Database {
     /*
         Take database path and create folder of db path if not exist
     */
-    pub fn path(path: &str) -> Result<String, Box<dyn Error>> {
+    pub fn init(path: &str) -> Result<Database, Box<dyn Error>> {
         let db_path = PathBuf::from(path);
 
         if let Some(dir_path) = db_path.parent()
@@ -37,15 +37,16 @@ impl  Database {
         let db_path_str = db_path.to_str().ok_or_else(|| {
                 rusqlite::Error::InvalidPath(db_path.clone())
         })?;
-        Ok(db_path_str.to_string())
+
+        Ok(Database { path: db_path_str.to_string(), db: None })
     }
 
 
     /*
         Connection with sqlite db
     */
-    pub fn init(path: String) -> Result<Self> {
-        let conn = Connection::open(&path)?;
+    pub fn connect(&mut self) -> Result<()> {
+        let conn = Connection::open(&self.path)?;
         conn.execute_batch(
             "CREATE TABLE if not exists master_profil (
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,11 +75,12 @@ impl  Database {
                 created_at TIMESTAMP not null,
                 updated_at TIMESTAMP)"
         )?;
-        Ok(Database { path, db: conn })
+        self.db = Some(conn);
+        Ok(())
     }
 
 
-    fn is_encrypted(&self) -> io::Result<bool> {
+    pub fn is_encrypted(&self) -> io::Result<bool> {
         let path = Path::new(&self.path);
         let mut file = File::open(path)?;
         let mut buffer = [0u8; 16];
@@ -89,8 +91,7 @@ impl  Database {
 
 
     pub fn encrypt(&self, key: &[u8]) -> Result<bool, Box<dyn Error>> {
-        if self.is_encrypted()?
-        {
+        if self.is_encrypted()? {
             return Ok(false);
         }
 
@@ -110,12 +111,33 @@ impl  Database {
     
         output_file.write_all(&iv)?;
         output_file.write_all(&encrypted_data)?;
-    
+        
         Ok(true)
     }
 
-    pub fn decrypt()
-    {
+    pub fn decrypt(&self, key: &[u8]) -> Result<bool, Box<dyn Error>> {
+        if !self.is_encrypted()? {
+            return Ok(false);
+        }
 
+        let input_path = Path::new(&self.path);
+        let output_path = Path::new(&self.path);
+    
+        let mut file = File::open(input_path)?;
+        let mut iv = [0u8; 16];
+        file.read_exact(&mut iv)?;
+    
+        let mut encrypted_data = Vec::new();
+        file.read_to_end(&mut encrypted_data)?;
+    
+        let cipher = Aes256Cbc::new_from_slices(key, &iv).expect("Error creating cipher");
+    
+        let decrypted_data = cipher.decrypt_vec(&encrypted_data)?;
+    
+        let mut output_file = File::create(output_path)?;
+        output_file.write_all(&decrypted_data)?;
+    
+        Ok(true)
     }
+    
 }

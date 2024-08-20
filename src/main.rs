@@ -12,8 +12,17 @@ use crate::encryption::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
 	
-	let db_path = Database::path(r"stored\data.db")?;
-    let database = Database::init(db_path)?;
+	let key = [0u8; 32];
+
+	let mut database = Database::init(r"stored\data.db")?;
+
+	if !database.is_encrypted()? {
+		println!("DECRYPTED");
+		database.connect()?;
+	} else {
+		println!("ENCRYPTED");
+		database.decrypt(&key)?;
+	}
 
     let new_profil = MasterProfil::new(
             "35".to_string(),
@@ -23,8 +32,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     println!("{:?}", database);
     //new_profil.insert(&database.db)?;
 
-    let key = [0u8; 32];
-	println!("{}", database.encrypt(&key)?);
+	//println!("{}", database.encrypt(&key)?); //SI DECRYPTEDg
 
     Ok(())
 }

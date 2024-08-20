@@ -1,47 +1,21 @@
 #[cfg(test)]
 mod tests;
 mod entities;
+mod encryption;
 
-use rusqlite::{Connection, Result};
+use rusqlite::{Result};
 use crate::entities::*;
-
-fn init_database() -> Result<Connection>{
-  let conn = Connection::open("test.db")?;
-  conn.execute_batch(
-  "CREATE TABLE if not exists master_profil (
-       id_profil VARCHAR primary key,
-       name VARCHAR(15) not null unique,
-       master_password VARCHAR not null);
-
-       CREATE TABLE if not exists vault (
-       id_vault VARCHAR primary key,
-       id_profil VARCHAR REFERENCES master_profil (id_profil) not null,
-       name VARCHAR(15) not null,
-       created_at TIMESTAMP not null,
-       updated_at TIMESTAMP
-       );
-
-       CREATE TABLE if not exists account (
-       id_account VARCHAR primary key,
-       id_vault VARCHAR REFERENCES vault (id_vault) not null,
-       name VARCHAR(20) not null,
-       label VARCHAR(20),
-       account_name VARCHAR(20) not null,
-       password TEXT not null,
-       url TEXT,
-       note TEXT,
-       created_at TIMESTAMP not null,
-       updated_at TIMESTAMP
-       )")?;
-  Ok(conn)
-}
+use crate::encryption::*;
 
 fn main() -> Result<()> {
-  let db = init_database()?;
+  //let db = init_database()?;
+  let database = Database::init("rt\\new.db".to_string())?;
   let new_profil = MasterProfil::new(
-    "35".to_string(),
-    "sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
-    "c'est pas hash".to_string());
-  new_profil.insert(&db)?;
+      "35".to_string(),
+      "sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
+      "c'est pas hash".to_string(),
+  );
+  println!("{:?}", database);
+  new_profil.insert(&database.db)?;
   Ok(())
 }

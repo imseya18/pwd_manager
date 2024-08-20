@@ -2,13 +2,13 @@ use crate::entities::traits::Insertable;
 use rusqlite::{Connection, Result};
 
 pub struct MasterProfil {
-  pub id: String,
+  pub id: i64,
   pub name: String,
   pub master_password: String,
 }
 
 impl MasterProfil {
-  pub fn new(id: String, name: String, master_password: String) ->Self{
+  pub fn new(id: i64, name: String, master_password: String) ->Self{
       MasterProfil {
         id,
         name,

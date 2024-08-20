@@ -3,7 +3,10 @@ mod tests;
 mod entities;
 mod encryption;
 
+use std::error::Error;
 use rusqlite::{Result};
+use std::path::{PathBuf, Path};
+
 use crate::entities::*;
 use crate::encryption::*;
 

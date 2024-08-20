@@ -12,7 +12,7 @@ use crate::encryption::*;
 use crate::crypto::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
-	
+
 	let key = [0u8; 32];
 
 	//Crypto::create_key_from_password("Ceci est mon password");
@@ -31,6 +31,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		"35".to_string(),
 		"sdihfoisdhgoishdogisdhgosidhgosdhohsdhgohdh".to_string(),
 		"c'est pas hash".to_string(),
+		 "ceci est le salt".to_string()
 	);
 	let new_vault = Vault::new("kdsjbfjdb".to_string(), 54, "THIS I MY FIRST VAULT".to_string());
 	let new_account  = Account::new(64, "uidtest".to_string(), "account 1".to_string(), "JGLP".to_string(), "password".to_string(), None, None, None);

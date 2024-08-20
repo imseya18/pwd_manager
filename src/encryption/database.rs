@@ -31,9 +31,9 @@ impl  Database {
             {
                 fs::create_dir_all(dir_path)?;
             }
-                
+
         }
-        
+
         let db_path_str = db_path.to_str().ok_or_else(|| {
                 rusqlite::Error::InvalidPath(db_path.clone())
         })?;
@@ -51,14 +51,15 @@ impl  Database {
             "CREATE TABLE if not exists master_profil (
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid_profil TEXT not null unique,
-                name VARCHAR(15) not null unique,
-                master_password VARCHAR not null);
+                name TEXT not null unique,
+                master_password TEXT not null,
+                salt TEXT not null);
 
             CREATE TABLE if not exists vault (
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_profil INTEGER REFERENCES master_profil (id_profil) not null,
                 uid_vault TEXT not null unique,
-                name VARCHAR(15) not null,
+                name TEXT not null,
                 created_at TIMESTAMP not null,
                 updated_at TIMESTAMP);
 
@@ -66,9 +67,9 @@ impl  Database {
                 id_account INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_vault INTEGER REFERENCES vault (id_vault) not null,
                 uid_account TEXT not null unique,
-                name VARCHAR(20) not null,
-                label VARCHAR(20),
-                account_name VARCHAR(20) not null,
+                name TEXT not null,
+                label TEXT,
+                account_name TEXT not null,
                 password TEXT not null,
                 url TEXT,
                 note TEXT,
@@ -85,7 +86,7 @@ impl  Database {
         let mut file = File::open(path)?;
         let mut buffer = [0u8; 16];
         file.read_exact(&mut buffer)?;
-    
+
         Ok(buffer != *b"SQLite format 3\0")
     }
 
@@ -100,18 +101,18 @@ impl  Database {
 
         let mut iv = [0u8; 16]; // 128 bits pour AES
         OsRng.fill(&mut iv);
-    
+
         let data = fs::read(input_path)?;
-    
+
         let cipher = Aes256Cbc::new_from_slices(key, &iv).expect("Error creating cipher");
-    
+
         let encrypted_data = cipher.encrypt_vec(&data);
-    
+
         let mut output_file = File::create(output_path)?;
-    
+
         output_file.write_all(&iv)?;
         output_file.write_all(&encrypted_data)?;
-        
+
         Ok(true)
     }
 
@@ -122,22 +123,22 @@ impl  Database {
 
         let input_path = Path::new(&path);
         let output_path = Path::new(&path);
-    
+
         let mut file = File::open(input_path)?;
         let mut iv = [0u8; 16];
         file.read_exact(&mut iv)?;
-    
+
         let mut encrypted_data = Vec::new();
         file.read_to_end(&mut encrypted_data)?;
-    
+
         let cipher = Aes256Cbc::new_from_slices(key, &iv).expect("Error creating cipher");
-    
+
         let decrypted_data = cipher.decrypt_vec(&encrypted_data)?;
-    
+
         let mut output_file = File::create(output_path)?;
         output_file.write_all(&decrypted_data)?;
-    
+
         Ok(true)
     }
-    
+
 }

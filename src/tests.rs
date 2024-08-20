@@ -10,14 +10,15 @@ fn setup_test_db() -> Result<Connection> {
       "CREATE TABLE if not exists master_profil (
           id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
           uid_profil TEXT not null unique,
-          name VARCHAR(15) not null unique,
-          master_password VARCHAR not null);
+          name TEXT not null unique,
+          master_password TEXT not null,
+          salt TEXT not null);
 
       CREATE TABLE if not exists vault (
           id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
           id_profil INTEGER REFERENCES master_profil (id_profil) not null,
           uid_vault TEXT not null unique,
-          name VARCHAR(15) not null,
+          name TEXT not null,
           created_at TIMESTAMP not null,
           updated_at TIMESTAMP);
 
@@ -25,9 +26,9 @@ fn setup_test_db() -> Result<Connection> {
           id_account INTEGER PRIMARY KEY AUTOINCREMENT,
           id_vault INTEGER REFERENCES vault (id_vault) not null,
           uid_account TEXT not null unique,
-          name VARCHAR(20) not null,
-          label VARCHAR(20),
-          account_name VARCHAR(20) not null,
+          name TEXT not null,
+          label TEXT,
+          account_name TEXT not null,
           password TEXT not null,
           url TEXT,
           note TEXT,
@@ -45,6 +46,7 @@ fn insert_duplicate_profile_fails() {
         62.to_string(),
         "test_password".to_string(),
         "test_hash".to_string(),
+        "ceci est le salt".to_string()
     );
 
     // Insère le premier profil
@@ -63,6 +65,7 @@ let new_profil = MasterProfil::new(
     62.to_string(),
     "test_password".to_string(),
     "test_hash".to_string(),
+    "ceci est le salt".to_string()
 );
 assert!(new_profil.insert(&conn).is_ok(), "Failed to insert first master profil");
 }

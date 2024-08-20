@@ -6,23 +6,25 @@ pub struct MasterProfil {
   pub uid: String,
   pub name: String,
   pub master_password: String,
+  pub salt: String
 }
 
 impl MasterProfil {
-  pub fn new(uid: String, name: String, master_password: String) ->Self{
+  pub fn new(uid: String, name: String, master_password: String, salt: String) ->Self{
       MasterProfil {
         db_id: None,
         uid,
         name,
         master_password,
+        salt
       }
   }
 }
 
 impl Insertable for MasterProfil {
   fn insert(&self, db: &Connection) -> Result<()> {
-      db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
-        (&self.uid, &self.name, &self.master_password))?;
+      db.execute("INSERT INTO master_profil (uid_profil, name, master_password, salt) VALUES  (?1, ?2, ?3, ?4)",
+        (&self.uid, &self.name, &self.master_password, &self.salt))?;
       Ok(())
   }
 }

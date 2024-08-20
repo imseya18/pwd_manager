@@ -9,10 +9,13 @@ use std::path::{PathBuf, Path};
 
 use crate::entities::*;
 use crate::encryption::*;
+use crate::crypto::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
 	
 	let key = [0u8; 32];
+
+	//Crypto::create_key_from_password("Ceci est mon password");
 
 	let mut database = Database::init(r"stored\data.db")?;
 
@@ -21,7 +24,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		database.connect()?;
 	} else {
 		println!("ENCRYPTED");
-		database.decrypt(&key)?;
+		//database.decrypt(&key)?;
 	}
 
 	let new_profil = MasterProfil::new(

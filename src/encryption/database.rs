@@ -90,13 +90,13 @@ impl  Database {
     }
 
 
-    pub fn encrypt(&self, key: &[u8]) -> Result<bool, Box<dyn Error>> {
-        if self.is_encrypted()? {
-            return Ok(false);
-        }
+    pub fn encrypt_file(&self, path: String, key: &[u8]) -> Result<bool, Box<dyn Error>> {
+        //if self.is_encrypted()? {
+        //    return Ok(false);
+        //}
 
-        let input_path = Path::new(&self.path);
-        let output_path = Path::new(&self.path);
+        let input_path = Path::new(&path);
+        let output_path = Path::new(&path);
 
         let mut iv = [0u8; 16]; // 128 bits pour AES
         OsRng.fill(&mut iv);
@@ -115,13 +115,13 @@ impl  Database {
         Ok(true)
     }
 
-    pub fn decrypt(&self, key: &[u8]) -> Result<bool, Box<dyn Error>> {
-        if !self.is_encrypted()? {
-            return Ok(false);
-        }
+    pub fn decrypt_file(&self, path: String, key: &[u8]) -> Result<bool, Box<dyn Error>> {
+        //if !self.is_encrypted()? {
+        //    return Ok(false);
+        //}
 
-        let input_path = Path::new(&self.path);
-        let output_path = Path::new(&self.path);
+        let input_path = Path::new(&path);
+        let output_path = Path::new(&path);
     
         let mut file = File::open(input_path)?;
         let mut iv = [0u8; 16];

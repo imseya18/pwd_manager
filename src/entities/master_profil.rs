@@ -2,6 +2,7 @@ use crate::entities::traits::Insertable;
 use rusqlite::{Connection, Result};
 
 pub struct MasterProfil {
+  db_id: Option<i64>,
   pub uid: String,
   pub name: String,
   pub master_password: String,
@@ -10,6 +11,7 @@ pub struct MasterProfil {
 impl MasterProfil {
   pub fn new(uid: String, name: String, master_password: String) ->Self{
       MasterProfil {
+        db_id: None,
         uid,
         name,
         master_password,

@@ -13,4 +13,5 @@ rand = "0.8.3"
 hex = "0.4.3"
 pbkdf2 = "0.12.0"  # Vérifiez pour obtenir la dernière version disponible
 hmac = "0.12.1"    # Vérifiez pour obtenir la dernière version disponible
-sha2 = "0.10.0"    # Vérifiez pour obtenir la dernière version disponiblex
+sha2 = "0.10.0"
+bcrypt = "0.15.1" # Vérifiez pour obtenir la dernière version disponiblex

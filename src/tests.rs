@@ -3,6 +3,7 @@
 use crate::MasterProfil;
 use crate::entities::traits::Insertable;
 use rusqlite::{Connection, Result};
+use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 
 fn setup_test_db() -> Result<Connection> {
     let conn = Connection::open_in_memory()?; // Ouvre une base de données en mémoire
@@ -11,8 +12,7 @@ fn setup_test_db() -> Result<Connection> {
           id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
           uid_profil TEXT not null unique,
           name TEXT not null unique,
-          master_password TEXT not null,
-          salt TEXT not null);
+          master_password TEXT not null);
 
       CREATE TABLE if not exists vault (
           id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,8 +45,7 @@ fn insert_duplicate_profile_fails() {
     let new_profil = MasterProfil::new(
         62.to_string(),
         "test_password".to_string(),
-        "test_hash".to_string(),
-        "ceci est le salt".to_string()
+        "test_hash".to_string()
     );
 
     // Insère le premier profil
@@ -65,7 +64,6 @@ let new_profil = MasterProfil::new(
     62.to_string(),
     "test_password".to_string(),
     "test_hash".to_string(),
-    "ceci est le salt".to_string()
 );
 assert!(new_profil.insert(&conn).is_ok(), "Failed to insert first master profil");
 }
@@ -73,5 +71,13 @@ assert!(new_profil.insert(&conn).is_ok(), "Failed to insert first master profil"
 #[test]
 fn connect_to_db(){
   let conn = setup_test_db();
-  assert!(conn.is_ok());
+  assert!(conn.is_ok())
+}
+
+#[test]
+fn verify_salt(){
+  let password = "this is a test password";
+  let hashed_password = hash(password, DEFAULT_COST).unwrap();
+  let hashed_password2 = hash(password, DEFAULT_COST).unwrap();
+  assert_ne!(hashed_password, hashed_password2)
 }

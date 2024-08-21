@@ -33,11 +33,9 @@ impl  Database {
             }
 
         }
-
         let db_path_str = db_path.to_str().ok_or_else(|| {
                 rusqlite::Error::InvalidPath(db_path.clone())
         })?;
-
         Ok(Database { path: db_path_str.to_string(), db: None })
     }
 
@@ -52,8 +50,7 @@ impl  Database {
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid_profil TEXT not null unique,
                 name TEXT not null unique,
-                master_password TEXT not null,
-                salt TEXT not null);
+                master_password TEXT not null);
 
             CREATE TABLE if not exists vault (
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -6,6 +6,7 @@ mod encryption;
 use std::error::Error;
 use rusqlite::{Result};
 use std::path::{PathBuf, Path};
+use ring::rand::{self, SecureRandom};
 
 use crate::entities::*;
 use crate::encryption::*;
@@ -13,19 +14,16 @@ use crate::crypto::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
 
-	let key = [0u8; 32];
 
-	//Crypto::create_key_from_password("Ceci est mon password");
+	let mut key = [0u8; 32];
+	let salt = Crypto::generate_rnd_salt();
+	let password = "Mot de passe de qualité supérieur";
 
-	let mut database = Database::init(r"stored\data.db")?;
+	key = Crypto::create_key_from_password(password, &salt);
 
-	if !database.is_encrypted()? {
-		println!("DECRYPTED");
-		database.connect()?;
-	} else {
-		println!("ENCRYPTED");
-		//database.decrypt(&key)?;
-	}
+	println!("passwords.push((\"{}\", {:?}, {:?}));", password, salt, key);
+
+	let mut database = Database::init(r"stored/test/data.db")?;
 
 	let new_profil = MasterProfil::new(
 		"35".to_string(),

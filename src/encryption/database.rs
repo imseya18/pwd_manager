@@ -14,7 +14,7 @@ type Aes256Cbc = Cbc<Aes256, Pkcs7>;
 #[derive(Debug)]
 pub struct Database {
     pub path: String,
-    pub db: Option<Connection>,
+    pub db: Connection,
 }
 
 impl  Database {
@@ -22,7 +22,7 @@ impl  Database {
     /*
         Take database path and create folder of db path if not exist
     */
-    pub fn init(path: &str) -> Result<Database, Box<dyn Error>> {
+    pub fn init(path: &str) -> Result<Self, Box<dyn Error>> {
         let db_path = PathBuf::from(path);
 
         if let Some(dir_path) = db_path.parent()
@@ -38,15 +38,15 @@ impl  Database {
                 rusqlite::Error::InvalidPath(db_path.clone())
         })?;
 
-        Ok(Database { path: db_path_str.to_string(), db: None })
+        Ok(Self::connect(db_path_str)?)
     }
 
 
     /*
         Connection with sqlite db
     */
-    pub fn connect(&mut self) -> Result<()> {
-        let conn = Connection::open(&self.path)?;
+    pub fn connect(db_path_str: &str) -> Result<Self> {
+        let conn = Connection::open(db_path_str)?;
         conn.execute_batch(
             "CREATE TABLE if not exists master_profil (
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,8 +76,8 @@ impl  Database {
                 created_at TIMESTAMP not null,
                 updated_at TIMESTAMP)"
         )?;
-        self.db = Some(conn);
-        Ok(())
+        //self.db = Some(conn);
+        Ok(Database { path: db_path_str.to_string(), db: conn })
     }
 
 

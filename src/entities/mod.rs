@@ -9,3 +9,4 @@ pub use account::Account;
 pub use master_profil::MasterProfil;
 pub use traits::Insertable;
 pub use vault::Vault;
+pub use master_profil::MasterProfileError;

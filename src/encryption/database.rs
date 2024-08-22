@@ -59,7 +59,7 @@ impl  Database {
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_profil INTEGER REFERENCES master_profil (id_profil) not null,
                 uid_vault TEXT not null unique,
-                name TEXT not null,
+                name BLOB not null,
                 created_at TIMESTAMP not null,
                 updated_at TIMESTAMP);
 
@@ -67,14 +67,14 @@ impl  Database {
                 id_account INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_vault INTEGER REFERENCES vault (id_vault) not null,
                 uid_account TEXT not null unique,
-                name TEXT not null,
-                label TEXT,
-                account_name TEXT not null,
-                password TEXT not null,
-                url TEXT,
-                note TEXT,
-                created_at TIMESTAMP not null,
-                updated_at TIMESTAMP)"
+                name BLOB not null,
+                label BLOB,
+                account_name BLOB not null,
+                password BLOB not null,
+                url BLOB,
+                note BLOB,
+                created_at BLOB not null,
+                updated_at BLOB not null)"
         )?;
         //self.db = Some(conn);
         Ok(Database { path: db_path_str.to_string(), db: conn })

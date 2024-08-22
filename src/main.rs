@@ -21,7 +21,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 	key = Crypto::create_key_from_password(password, &salt);
 
-	println!("passwords.push((\"{}\", {:?}, {:?}));", password, salt, key);
+	let name_man = "Ceci est une donné sensible";
+
+	let chiffred_data = Crypto::encrypt(name_man, &key);
+
+	println!("{:?} => {}", chiffred_data, Crypto::decrypt(&chiffred_data, &key));
+
+	//println!("passwords.push((\"{}\", {:?}, {:?}));", password, salt, key);
 
 	let mut database = Database::init(r"stored/test/data.db")?;
 

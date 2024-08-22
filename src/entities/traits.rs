@@ -1,5 +1,6 @@
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
+use super::{Error, Result};
 
 pub trait Insertable {
-  fn insert(&self, db: &Connection) -> Result<()>;
+    fn insert(&self, db: &Connection) -> Result<()>;
 }

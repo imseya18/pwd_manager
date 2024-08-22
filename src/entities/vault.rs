@@ -1,6 +1,7 @@
 use crate::entities::traits::Insertable;
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
 use chrono::{Local, TimeZone, Utc};
+use super::{Error, Result};
 
 #[derive(Debug)]
 pub struct Vault {

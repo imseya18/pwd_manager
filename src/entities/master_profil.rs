@@ -1,6 +1,7 @@
 use crate::entities::traits::Insertable;
-use rusqlite::{Connection, Result, Error};
+use rusqlite::Connection;
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
+use super::{Error, Result};
 
 #[derive(Debug)]
 pub enum MasterProfileError {
@@ -32,7 +33,7 @@ pub struct MasterProfil {
 
 
 impl MasterProfil {
-  pub fn new_user(uid: impl Into<String>, name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self, MasterProfileError> {
+  pub fn new_user(uid: impl Into<String>, name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self> {
     Ok(MasterProfil {
       db_id: None,
       uid: uid.into(),
@@ -54,12 +55,12 @@ impl MasterProfil {
       }
   }
 
-  pub fn hash_password(mut self) -> Result<Self, BcryptError>{
+  pub fn hash_password(mut self) -> Result<Self>{
       self.master_password = hash(&self.master_password, DEFAULT_COST)?;
       Ok(self)
   }
 
-  pub fn self_insert(self, db: &Connection) -> Result<Self, Error> {
+  pub fn self_insert(self, db: &Connection) -> Result<Self> {
       db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
         (&self.uid, &self.name, &self.master_password))?;
       Ok(self)

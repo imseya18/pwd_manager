@@ -46,7 +46,9 @@ impl  Database {
     pub fn connect(&mut self) -> Result<()> {
         let conn = Connection::open(&self.path)?;
         conn.execute_batch(
-            "CREATE TABLE if not exists master_profil (
+            "PRAGMA foreign_keys = ON;
+
+            CREATE TABLE if not exists master_profil (
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid_profil TEXT not null unique,
                 name TEXT not null unique,
@@ -54,7 +56,7 @@ impl  Database {
 
             CREATE TABLE if not exists vault (
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_profil INTEGER REFERENCES master_profil (id_profil) not null,
+                id_profil INTEGER REFERENCES master_profil (id_profil) ON DELETE CASCADE not null,
                 uid_vault TEXT not null unique,
                 name TEXT not null,
                 created_at TIMESTAMP not null,
@@ -62,7 +64,7 @@ impl  Database {
 
             CREATE TABLE if not exists account (
                 id_account INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_vault INTEGER REFERENCES vault (id_vault) not null,
+                id_vault INTEGER REFERENCES vault (id_vault) ON DELETE CASCADE not null,
                 uid_account TEXT not null unique,
                 name TEXT not null,
                 label TEXT,

@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 use crate::MasterProfil;
-use crate::entities::traits::Insertable;
+use crate::{entities::traits::Insertable, Vault};
 use rusqlite::Connection;
 use bcrypt::{hash, verify, DEFAULT_COST};
 
@@ -9,9 +9,12 @@ pub type Error = Box<dyn std::error::Error>;
 pub type Result<T> = core::result::Result<T, Error>;
 
 fn setup_test_db() -> Result<Connection> {
-    let conn = Connection::open_in_memory()?; // Ouvre une base de données en mémoire
+    let conn = Connection::open_in_memory()?;
+    conn.execute("PRAGMA foreign_keys = ON;", [])?;
     conn.execute_batch(
-      "CREATE TABLE if not exists master_profil (
+    "PRAGMA foreign_keys = ON;
+
+      CREATE TABLE if not exists master_profil (
           id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
           uid_profil TEXT not null unique,
           name TEXT not null unique,
@@ -79,7 +82,7 @@ fn connect_to_db(){
 
 #[test]
 fn verify_salt(){
-  let password = "this is a test password";
+    let password = "this is a test password";
   let hashed_password = hash(password, DEFAULT_COST).unwrap();
   let hashed_password2 = hash(password, DEFAULT_COST).unwrap();
   assert_ne!(hashed_password, hashed_password2)
@@ -88,8 +91,8 @@ fn verify_salt(){
 #[test]
 fn get_master_profil_from_db_ok(){
   let db = setup_test_db().expect("failed to connect to db");
-  let new_profil = MasterProfil::create_store_new_profil("1234", "JGLP", "c'est ok", &db).expect("failed to create profil");
-  let get_profil = MasterProfil::get_by_name("JGLP".to_string(), &db).expect("probleme");
+  let new_profil = MasterProfil::create_store_in_db("1234", "JGLP", "c'est ok", &db).expect("failed to create profil");
+  let get_profil = MasterProfil::get_by_name("JGLP", &db).expect("probleme");
 
   assert_eq!(new_profil.name, get_profil.name);
   assert_eq!(new_profil.uid, get_profil.uid);
@@ -99,14 +102,14 @@ fn get_master_profil_from_db_ok(){
 #[test]
 fn get_master_profil_from_db_error(){
   let db = setup_test_db().expect("failed to connect to db");
-  let get_profil = MasterProfil::get_by_name("JGLP".to_string(), &db);
+  let get_profil = MasterProfil::get_by_name("JGLP", &db);
   assert_eq!(get_profil.is_ok(), false);
 }
 
 #[test]
 fn good_user_good_password() -> Result<()>{
   let db = setup_test_db().expect("failed to connect to db");
-  let insert_profil = MasterProfil::create_store_new_profil(
+  let insert_profil = MasterProfil::create_store_in_db(
     "uid",
     "JGLP2", "1234",
     &db)?;
@@ -118,11 +121,39 @@ fn good_user_good_password() -> Result<()>{
 #[test]
 fn good_user_wrong_password() -> Result<()>{
   let db = setup_test_db().expect("failed to connect to db");
-  let insert_profil = MasterProfil::create_store_new_profil(
+  let insert_profil = MasterProfil::create_store_in_db(
     "uid",
     "JGLP2", "1234",
     &db)?;
   let get_profil = MasterProfil::get_valide_existing_user("JGLP2", "dfsdgdg", &db);
   assert!(get_profil.is_err(), "Expected an error due to wrong password");
   Ok(())
+}
+
+#[test]
+fn insert_new_vault() -> Result<()>{
+    let db = setup_test_db().expect("failed to connect to db");
+    let main_profil = MasterProfil::create_store_in_db(
+      "uid",
+      "JGLP2", "1234",
+      &db)?;
+    let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+    let new_vault = Vault::new("test", profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
+      .insert(&db);
+    assert!(new_vault.is_ok(), "Expected no Error all value are good");
+    Ok(())
+}
+
+#[test]
+fn insert_new_vault_wrong_user_id() -> Result<()>{
+    let db = setup_test_db().expect("failed to connect to db");
+    let main_profil = MasterProfil::create_store_in_db(
+      "uid",
+      "JGLP2", "1234",
+      &db)?;
+    let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+    let new_vault = Vault::new("test", 457457, "this is a new vault")
+      .insert(&db);
+    assert!(new_vault.is_err(), "Expected Error user_id not exist");
+    Ok(())
 }

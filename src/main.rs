@@ -16,12 +16,10 @@ fn main() -> Result<()> {
 
 	database.connect()?;
 	let db = &database.db.ok_or("probleme db")?;
-	let test = MasterProfil::get_by_name("were".to_string(), db)?;
-	println!("{:#?}", test);
-	// let insert_profil = MasterProfil::create_store_new_profil(
- //    "uid3",
- //    "JGLP3", "1234",
- //    db)?;
-  let get_profil = MasterProfil::get_valide_existing_user("JGLP5", "1234", db)?;
-	Ok(())
+  // let new_profil = MasterProfil::get_valide_existing_user("JGLP", "1234", db)?;
+  // let new_vault = Vault::create_store_in_db("sfdgsdg", new_profil.db_id.ok_or("user_id is None")?, "Vault Test", db)?;
+  // let new_vault = Vault::create_store_in_db("sdfsdf", new_profil.db_id.ok_or("user_id is None")?, "Vault Test 2", db)?;
+  // let new_vault = Vault::create_store_in_db("fdsgsd", new_profil.db_id.ok_or("user_id is None")?, "Vault Test 3", db)?;
+  Vault::get_by_user_id(1, db)?;
+  Ok(())
 }

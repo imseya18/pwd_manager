@@ -1,5 +1,5 @@
 use crate::entities::traits::Insertable;
-use rusqlite::Connection;
+use rusqlite::{Connection, params};
 use chrono::{Local, TimeZone, Utc};
 use super::{Error, Result};
 
@@ -14,15 +14,42 @@ pub struct Vault {
 }
 
 impl  Vault {
-  pub fn new(uid: String, user_id: i64, name: String) -> Self {
+  pub fn new(uid: impl Into<String>, user_id: i64, name: impl Into<String>) -> Self {
     Vault{
       db_id: None,
-      uid,
+      uid: uid.into(),
       user_id,
-      name,
+      name: name.into(),
       created_at: Local::now().timestamp(),
       updated_at: Local::now().timestamp()
       }
+  }
+
+  pub fn create_store_in_db(uid: impl Into<String>, user_id:i64 ,name: impl Into<String>, db: &Connection) -> Result<Self> {
+      let vault = Self::new(uid, user_id, name);
+      vault.insert(db)?;
+      Ok(vault)
+  }
+
+  pub fn get_by_user_id(user_id:i64, db: &Connection) -> Result<Vec<Vault>> {
+    let mut query = db.prepare("Select * FROM vault WHERE id_profil = ?1")?;
+    let vaults_itter = query.query_map([user_id], |row| {
+      Ok(Vault {
+        db_id: row.get(0)?,
+        user_id: row.get(1)?,
+        uid: row.get(2)?,
+        name: row.get(3)?,
+        created_at: row.get(4)?,
+        updated_at: row.get(5)?
+        })
+    })?;
+
+    /*Store only valide data ignore errors*/
+    let vaults: Vec<Vault> = vaults_itter
+        .filter_map(|result| result.ok())
+        .collect();
+
+    Ok(vaults)
   }
 }
 

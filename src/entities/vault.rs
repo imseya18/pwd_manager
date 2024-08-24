@@ -31,7 +31,7 @@ impl  Vault {
       Ok(vault)
   }
 
-  pub fn get_by_user_id(user_id:i64, db: &Connection) -> Result<Vec<Vault>> {
+  pub fn get_by_user_id(user_id:i64, db: &Connection) -> Result<Vec<Result<Vault>>> {
     let mut query = db.prepare("Select * FROM vault WHERE id_profil = ?1")?;
     let vaults_itter = query.query_map([user_id], |row| {
       Ok(Vault {
@@ -44,11 +44,8 @@ impl  Vault {
         })
     })?;
 
-    /*Store only valide data ignore errors*/
-    let vaults: Vec<Vault> = vaults_itter
-        .filter_map(|result| result.ok())
-        .collect();
-
+    /*contain Vec of result*/
+    let vaults = vaults_itter.map(|result| result.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)).collect();
     Ok(vaults)
   }
 }

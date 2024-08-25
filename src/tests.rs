@@ -133,7 +133,7 @@ fn insert_new_vault() -> Result<()>{
       "JGLP2", "1234",
       &db)?;
     let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
-    let new_vault = Vault::new("test", profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
+    let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
       .insert(&db);
     assert!(new_vault.is_ok(), "Expected no Error all value are good");
     Ok(())
@@ -146,7 +146,7 @@ fn insert_new_vault_wrong_user_id() -> Result<()>{
       "JGLP2", "1234",
       &db)?;
     let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
-    let new_vault = Vault::new("test", 457457, "this is a new vault")
+    let new_vault = Vault::new( 457457, "this is a new vault")
       .insert(&db);
     assert!(new_vault.is_err(), "Expected Error user_id not exist");
     Ok(())

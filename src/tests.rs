@@ -49,7 +49,6 @@ fn insert_duplicate_profile_fails() {
 
     // Création du premier profil
     let new_profil = MasterProfil::new(
-        62.to_string(),
         "test_password".to_string(),
         "test_hash".to_string()
     );
@@ -67,7 +66,6 @@ fn insert_duplicate_profile_fails() {
 fn insert_profil(){
 let conn = setup_test_db().expect("Failed to set up test database");
 let new_profil = MasterProfil::new(
-    62.to_string(),
     "test_password".to_string(),
     "test_hash".to_string(),
 );
@@ -91,7 +89,7 @@ fn verify_salt(){
 #[test]
 fn get_master_profil_from_db_ok(){
   let db = setup_test_db().expect("failed to connect to db");
-  let new_profil = MasterProfil::create_store_in_db("1234", "JGLP", "c'est ok", &db).expect("failed to create profil");
+  let new_profil = MasterProfil::create_store_in_db( "JGLP", "c'est ok", &db).expect("failed to create profil");
   let get_profil = MasterProfil::get_by_name("JGLP", &db).expect("probleme");
 
   assert_eq!(new_profil.name, get_profil.name);
@@ -110,7 +108,6 @@ fn get_master_profil_from_db_error(){
 fn good_user_good_password() -> Result<()>{
   let db = setup_test_db().expect("failed to connect to db");
   let insert_profil = MasterProfil::create_store_in_db(
-    "uid",
     "JGLP2", "1234",
     &db)?;
   let get_profil = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db);
@@ -122,7 +119,6 @@ fn good_user_good_password() -> Result<()>{
 fn good_user_wrong_password() -> Result<()>{
   let db = setup_test_db().expect("failed to connect to db");
   let insert_profil = MasterProfil::create_store_in_db(
-    "uid",
     "JGLP2", "1234",
     &db)?;
   let get_profil = MasterProfil::get_valide_existing_user("JGLP2", "dfsdgdg", &db);
@@ -134,7 +130,6 @@ fn good_user_wrong_password() -> Result<()>{
 fn insert_new_vault() -> Result<()>{
     let db = setup_test_db().expect("failed to connect to db");
     let main_profil = MasterProfil::create_store_in_db(
-      "uid",
       "JGLP2", "1234",
       &db)?;
     let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
@@ -148,7 +143,6 @@ fn insert_new_vault() -> Result<()>{
 fn insert_new_vault_wrong_user_id() -> Result<()>{
     let db = setup_test_db().expect("failed to connect to db");
     let main_profil = MasterProfil::create_store_in_db(
-      "uid",
       "JGLP2", "1234",
       &db)?;
     let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;

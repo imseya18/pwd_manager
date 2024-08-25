@@ -1,12 +1,12 @@
 use crate::entities::traits::Insertable;
 use crate::anyhow;
-use rusqlite::{Connection, params};
+use rusqlite::{Connection, params, Error as RusqliteError};
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
+use uuid::Uuid;
 use super::{Error, Result};
 
 #[derive(Debug)]
 pub enum MasterProfileError {
-  RuSqliteError(rusqlite::Error),
   CrypteError(BcryptError),
   Other(String),
 }
@@ -17,16 +17,16 @@ impl From<BcryptError> for MasterProfileError {
   }
 }
 
-impl From<rusqlite::Error> for MasterProfileError {
-  fn from(err: rusqlite::Error) -> Self {
-      MasterProfileError::RuSqliteError(err)
-  }
-}
+// impl From<rusqlite::Error> for MasterProfileError {
+//   fn from(err: rusqlite::Error) -> Self {
+//       MasterProfileError::RuSqliteError(err)
+//   }
+// }
 
 #[derive(Debug)]
 pub struct MasterProfil {
   pub db_id: Option<i64>,
-  pub uid: String,
+  pub uid: Uuid,
   pub name: String,
   pub master_password: String,
   pub derivated_key: Option<[u8; 32]>
@@ -36,17 +36,17 @@ pub struct MasterProfil {
 
 impl MasterProfil {
 
-  pub fn create_store_in_db(uid: impl Into<String>, name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self> {
-    let mut new_profil = Self::new(uid, name, master_password);
+  pub fn create_store_in_db(name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self> {
+    let mut new_profil = Self::new(name, master_password);
     new_profil.hash_password()?;
     new_profil.insert(db)?;
     Ok(new_profil)
   }
 
-  pub fn new(uid: impl Into<String>, name: impl Into<String>, master_password: impl Into<String>) ->Self{
+  pub fn new(name: impl Into<String>, master_password: impl Into<String>) ->Self{
       MasterProfil {
         db_id: None,
-        uid: uid.into(),
+        uid: Uuid::new_v4(),
         name: name.into(),
         master_password: master_password.into(),
         derivated_key: None
@@ -66,20 +66,23 @@ impl MasterProfil {
 
   pub fn self_insert(self, db: &Connection) -> Result<Self> {
       db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
-        (&self.uid, &self.name, &self.master_password))?;
+        (&self.uid.to_string(), &self.name, &self.master_password))?;
       Ok(self)
   }
 
   pub fn get_by_name(name: &str ,db: &Connection) -> Result<Self> {
-      Ok(db.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {
+      let profil = db.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {
+        let uid_str: String = row.get(1)?;
+        let uid = Uuid::parse_str(&uid_str).map_err(|e|  RusqliteError::UserFunctionError(Box::new(e)))?;
         Ok(MasterProfil {
                         db_id: row.get(0)?,
-                        uid: row.get(1)?,
+                        uid,
                         name: row.get(2)?,
                         master_password: row.get(3)?,
                         derivated_key: None
                     })
-      })?)
+      })?;
+      Ok(profil)
   }
 
   pub fn verify_password(master_password: &str, hash: &str) ->Result<()>{
@@ -95,7 +98,7 @@ impl MasterProfil {
 impl Insertable for MasterProfil {
   fn insert(&self, db: &Connection) -> Result<()> {
       db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
-        (&self.uid, &self.name, &self.master_password))?;
+        (&self.uid.to_string(), &self.name, &self.master_password))?;
       Ok(())
   }
 }

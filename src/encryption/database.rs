@@ -14,7 +14,7 @@ type Aes256Cbc = Cbc<Aes256, Pkcs7>;
 #[derive(Debug)]
 pub struct Database {
     pub path: String,
-    pub db: Option<Connection>,
+    pub db: Connection,
 }
 
 impl  Database {
@@ -22,7 +22,7 @@ impl  Database {
     /*
         Take database path and create folder of db path if not exist
     */
-    pub fn init(path: &str) -> Result<Database, Box<dyn Error>> {
+    pub fn init(path: &str) -> Result<Self, Box<dyn Error>> {
         let db_path = PathBuf::from(path);
 
         if let Some(dir_path) = db_path.parent()
@@ -36,15 +36,16 @@ impl  Database {
         let db_path_str = db_path.to_str().ok_or_else(|| {
                 rusqlite::Error::InvalidPath(db_path.clone())
         })?;
-        Ok(Database { path: db_path_str.to_string(), db: None })
+
+        Ok(Self::connect(db_path_str)?)
     }
 
 
     /*
         Connection with sqlite db
     */
-    pub fn connect(&mut self) -> Result<()> {
-        let conn = Connection::open(&self.path)?;
+    pub fn connect(db_path_str: &str) -> Result<Self> {
+        let conn = Connection::open(db_path_str)?;
         conn.execute_batch(
             "PRAGMA foreign_keys = ON;
 
@@ -58,7 +59,7 @@ impl  Database {
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_profil INTEGER REFERENCES master_profil (id_profil) ON DELETE CASCADE not null,
                 uid_vault TEXT not null unique,
-                name TEXT not null,
+                name BLOB not null,
                 created_at TIMESTAMP not null,
                 updated_at TIMESTAMP);
 
@@ -66,17 +67,17 @@ impl  Database {
                 id_account INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_vault INTEGER REFERENCES vault (id_vault) ON DELETE CASCADE not null,
                 uid_account TEXT not null unique,
-                name TEXT not null,
-                label TEXT,
-                account_name TEXT not null,
-                password TEXT not null,
-                url TEXT,
-                note TEXT,
-                created_at TIMESTAMP not null,
-                updated_at TIMESTAMP)"
+                name BLOB not null,
+                label BLOB,
+                account_name BLOB not null,
+                password BLOB not null,
+                url BLOB,
+                note BLOB,
+                created_at BLOB not null,
+                updated_at BLOB not null)"
         )?;
-        self.db = Some(conn);
-        Ok(())
+        //self.db = Some(conn);
+        Ok(Database { path: db_path_str.to_string(), db: conn })
     }
 
 

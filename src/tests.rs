@@ -1,12 +1,15 @@
 #[cfg(test)]
 
+use crate::Crypto;
 use crate::MasterProfil;
 use crate::{entities::traits::Insertable, Vault};
-use rusqlite::Connection;
 use bcrypt::{hash, verify, DEFAULT_COST};
 
 pub type Error = Box<dyn std::error::Error>;
 pub type Result<T> = core::result::Result<T, Error>;
+
+use rusqlite::{Connection, Result};
+use std::collections::HashSet;
 
 fn setup_test_db() -> Result<Connection> {
     let conn = Connection::open_in_memory()?;
@@ -150,4 +153,39 @@ fn insert_new_vault_wrong_user_id() -> Result<()>{
       .insert(&db);
     assert!(new_vault.is_err(), "Expected Error user_id not exist");
     Ok(())
+}
+
+
+/* ========== CRYPTO ========== */
+
+#[test]
+fn salt_randmoness() {
+    let mut salts = HashSet::new();
+
+    for _ in 0..10 {
+        let salt = Crypto::generate_rnd_salt();
+        salts.insert(salt);
+    }
+
+    assert_eq!(salts.len(), 10);
+}
+
+#[test]
+fn key_from_password() {
+
+    let mut  passwords: Vec<(&str, [u8; 16], [u8; 32])> = Vec::new();
+
+    passwords.push(("Secured password", [222, 122, 181, 154, 106, 55, 132, 77, 233, 139, 9, 254, 71, 5, 161, 215], [13, 80, 233, 146, 255, 115, 143, 118, 151, 220, 183, 180, 113, 119, 43, 159, 164, 224, 121, 75, 103, 233, 252, 159, 108, 53, 127, 51, 22, 222, 165, 86]));
+    passwords.push(("2DXq9JYvMZHg7swL6nU3Ai5rKo0Bt1RpS8WTz4QcGFekdbIxClhfmaPEjOqNuVynXZGb9Hj8K2Y5A3qL7D0MtOu4crF1EpSixWIznvlPwQeTaJgCkUBmdRhoysLxfV3u", [22, 165, 237, 215, 141, 194, 165, 222, 251, 34, 242, 175, 132, 184, 123, 119], [11, 250, 105, 73, 127, 76, 96, 162, 136, 22, 200, 237, 21, 124, 100, 2, 237, 205, 180, 151, 246, 45, 127, 39, 140, 104, 17, 40, 229, 149, 40, 100]));
+    passwords.push(("LA$$14NdbUpixfE", [29, 78, 26, 135, 236, 250, 16, 54, 16, 237, 83, 24, 82, 212, 66, 64], [79, 118, 64, 213, 13, 252, 174, 49, 152, 6, 165, 29, 64, 0, 177, 67, 176, 182, 130, 9, 177, 81, 147, 121, 216, 174, 239, 75, 43, 215, 55, 6]));
+    passwords.push(("123", [93, 85, 127, 70, 40, 79, 213, 227, 208, 234, 164, 171, 137, 214, 168, 13], [18, 6, 191, 207, 9, 30, 134, 152, 202, 229, 119, 238, 188, 84, 28, 147, 170, 123, 88, 26, 38, 235, 221, 134, 9, 187, 180, 86, 10, 40, 7, 137]));
+    passwords.push(("♕", [5, 190, 93, 36, 80, 144, 194, 51, 197, 197, 80, 41, 168, 13, 89, 66], [48, 100, 112, 159, 27, 39, 33, 223, 189, 233, 89, 160, 219, 246, 212, 22, 137, 216, 220, 28, 163, 40, 143, 17, 109, 56, 145, 128, 46, 134, 111, 63]));
+    passwords.push((" ", [30, 151, 79, 203, 50, 9, 166, 43, 156, 163, 218, 152, 140, 75, 49, 61], [177, 124, 153, 40, 116, 125, 33, 162, 186, 60, 141, 54, 115, 127, 73, 60, 64, 80, 180, 249, 111, 102, 77, 240, 220, 132, 184, 229, 85, 251, 129, 136]));
+    passwords.push(("😎", [43, 12, 195, 39, 32, 210, 12, 196, 158, 128, 98, 57, 175, 155, 172, 247], [212, 41, 189, 193, 239, 50, 130, 164, 109, 250, 43, 9, 71, 2, 204, 182, 185, 230, 181, 51, 145, 139, 62, 91, 187, 186, 246, 113, 136, 226, 54, 205]));
+
+    for (password, salt, expected_key) in  passwords.iter() {
+        let generated_key = Crypto::create_key_from_password(password, salt);
+        assert_eq!(generated_key, *expected_key, "Failed for password: {}", password);
+    }
+
 }

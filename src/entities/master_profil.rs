@@ -1,4 +1,5 @@
 use crate::entities::traits::Insertable;
+use crate::utils::convert_uid_from_db;
 use crate::anyhow;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
@@ -72,8 +73,7 @@ impl MasterProfil {
 
   pub fn get_by_name(name: &str ,db: &Connection) -> Result<Self> {
       let profil = db.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {
-        let uid_str: String = row.get(1)?;
-        let uid = Uuid::parse_str(&uid_str).map_err(|e|  RusqliteError::UserFunctionError(Box::new(e)))?;
+        let uid = convert_uid_from_db(row.get(1)?)?;
         Ok(MasterProfil {
                         db_id: row.get(0)?,
                         uid,

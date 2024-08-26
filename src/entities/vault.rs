@@ -1,4 +1,5 @@
 use crate::entities::traits::Insertable;
+use crate::utils::convert_uid_from_db;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
 use uuid::Uuid;
@@ -35,8 +36,7 @@ impl  Vault {
   pub fn get_by_user_id(user_id:i64, db: &Connection) -> Result<Vec<Result<Vault>>> {
     let mut query = db.prepare("Select * FROM vault WHERE id_profil = ?1")?;
     let vaults_itter = query.query_map([user_id], |row| {
-      let uid_str: String = row.get(2)?;
-      let uid = Uuid::parse_str(&uid_str).map_err(|e| RusqliteError::UserFunctionError(Box::new(e)))?;
+      let uid = convert_uid_from_db(row.get(2)?)?;
       Ok(Vault {
         db_id: row.get(0)?,
         user_id: row.get(1)?,

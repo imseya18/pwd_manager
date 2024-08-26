@@ -2,6 +2,7 @@
 mod tests;
 mod entities;
 mod encryption;
+mod utils;
 
 use std::path::{PathBuf, Path};
 
@@ -16,11 +17,15 @@ fn main() -> Result<()> {
 
 	database.connect()?;
 	let db = &database.db.ok_or("probleme db")?;
-  let new_profil = MasterProfil::get_by_name("JGLP2", db)?;
+  let new_profil = MasterProfil::get_by_name("JGLP", db)?;
   println!("{:#?}", new_profil);
-  // let new_vault = Vault::create_store_in_db("sfdgsdg", new_profil.db_id.ok_or("user_id is None")?, "Vault Test", db)?;
-  // let new_vault = Vault::create_store_in_db("sdfsdf", new_profil.db_id.ok_or("user_id is None")?, "Vault Test 2", db)?;
-  // let new_vault = Vault::create_store_in_db("fdsgsd", new_profil.db_id.ok_or("user_id is None")?, "Vault Test 3", db)?;
-  //Vault::get_by_user_id(1, db)?;
+  let vaults = Vault::get_by_user_id(3, db)?;
+  println!("{:?}", vaults.len());
+  for vault in vaults.iter(){
+    match vault {
+      Ok(v) => println!("{:#?}", v),
+      Err(e) => println!("{:?}", e)
+    }
+  }
   Ok(())
 }

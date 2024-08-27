@@ -18,6 +18,9 @@ bcrypt = "0.15.1" # Vérifiez pour obtenir la dernière version disponiblex
 anyhow = "1.0"
 ring = "0.16.20"
 chacha20poly1305 = "0.10.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex-literal = "0.3"
 
 [dependencies.uuid]
 version = "1.10.0"

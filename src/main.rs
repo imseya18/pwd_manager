@@ -7,6 +7,9 @@ mod utils;
 use std::path::{PathBuf, Path};
 use ring::rand::{self, SecureRandom};
 
+pub type Error = Box<dyn std::error::Error>;
+pub type Result<T> = core::result::Result<T, Error>;
+
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 use crate::entities::*;
 use crate::encryption::*;

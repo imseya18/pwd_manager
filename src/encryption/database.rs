@@ -67,12 +67,7 @@ impl  Database {
                 id_account INTEGER PRIMARY KEY AUTOINCREMENT,
                 id_vault INTEGER REFERENCES vault (id_vault) ON DELETE CASCADE not null,
                 uid_account TEXT not null unique,
-                name BLOB not null,
-                label BLOB,
-                account_name BLOB not null,
-                password BLOB not null,
-                url BLOB,
-                note BLOB,
+                sensitive_data BLOB not null,
                 created_at BLOB not null,
                 updated_at BLOB not null)"
         )?;

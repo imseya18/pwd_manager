@@ -8,7 +8,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 pub type Error = Box<dyn std::error::Error>;
 pub type Result<T> = core::result::Result<T, Error>;
 
-use rusqlite::{Connection, Result};
+use rusqlite::Connection;
 use std::collections::HashSet;
 
 fn setup_test_db() -> Result<Connection> {

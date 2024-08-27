@@ -14,10 +14,8 @@ use crate::crypto::*;
 
 fn main() -> Result<()> {
 
-	let mut database = Database::init(r"stored/data.db")?;
-
-	database.connect()?;
-	let db = &database.db.ok_or("probleme db")?;
+	let database = Database::init(r"stored/data.db")?;
+	let db = &database.db;
   let new_profil = MasterProfil::get_by_name("JGLP", db)?;
   println!("{:#?}", new_profil);
   let vaults = Vault::get_by_user_id(3, db)?;

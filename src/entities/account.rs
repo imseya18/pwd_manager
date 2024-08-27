@@ -52,9 +52,10 @@ impl Account {
 
 // impl Insertable for Account {
 //   fn insert(&self, db: &Connection) -> Result<()> {
-//     db.execute("INSERT INTO account (id_vault, uid_account, name, label, account_name, password, url, note, created_at, updated_at)
-//                     VALUES  (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
-//       ( &self.vault_id ,&self.uid, &self.name,  &self.label, &self.account_name, &self.password, &self.url, &self.note, &self.created_at, &self.updated_at))
+
+//     db.execute("INSERT INTO account (id_vault, uid_account, sensitive_data, created_at, updated_at)
+//                     VALUES  (?1, ?2, ?3, ?4, ?5)",
+//       ( &self.vault_id ,&self.uid, &self.created_at, &self.updated_at))
 //               .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 //     Ok(())
 //   }

@@ -55,8 +55,14 @@ impl  Vault {
 
 impl Insertable for Vault {
   fn insert(&self, db: &rusqlite::Connection) -> Result<()> {
+    // TODO encrypt struct sensitive_data Struct before push
+    let encrypted_struct =
     db.execute("INSERT INTO vault (uid_vault, id_profil, name, created_at, updated_at) VALUES  (?1, ?2, ?3, ?4, ?5)",
       (&self.uid.to_string(), &self.user_id,  &self.name, &self.created_at, &self.updated_at))?;
+    Ok(())
+  }
+
+  fn delete(&self, db: &Connection) -> Result<()> {
     Ok(())
   }
 }

@@ -145,17 +145,26 @@ fn insert_new_vault() -> Result<()>{
 #[test]
 fn insert_new_vault_wrong_user_id() -> Result<()>{
     let db = setup_test_db().expect("failed to connect to db");
-    let main_profil = MasterProfil::create_store_in_db(
-      "JGLP2", "1234",
-      &db)?;
-    let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
     let new_vault = Vault::new( 457457, "this is a new vault")
       .insert(&db);
     assert!(new_vault.is_err(), "Expected Error user_id not exist");
     Ok(())
 }
 
+fn get_new_vault() -> Result<()>{
+      let db = setup_test_db().expect("failed to connect to db");
+      let main_profil = MasterProfil::create_store_in_db(
+        "JGLP2", "1234",
+        &db)?;
+      let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+      let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
+        .insert(&db);
+      let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault2")
+        .insert(&db);
 
+      let vaults_result = Vault::get_by_user_id(profil_from_db.db_id.ok_or(err), &db)
+      Ok(())
+}
 /* ========== CRYPTO ========== */
 
 #[test]

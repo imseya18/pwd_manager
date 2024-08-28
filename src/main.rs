@@ -19,9 +19,7 @@ fn main() -> Result<()> {
 
 	let database = Database::init(r"stored/data.db")?;
 	let db = &database.db;
-  let new_profil = MasterProfil::get_by_name("JGLP", db)?;
-  println!("{:#?}", new_profil);
-  new_profil.delete(db)?;
+  let new_profil = MasterProfil::get_valide_existing_user("JGLP", "oui c'est ouioui", db)?;
   Ok(())
 }
 

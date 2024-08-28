@@ -30,7 +30,8 @@ fn setup_test_db() -> Result<Connection> {
           id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
           uid_profil TEXT not null unique,
           name TEXT not null unique,
-          master_password TEXT not null);
+          master_password TEXT not null,
+          salt BlOB not null);
 
       CREATE TABLE if not exists vault (
           id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,14 +57,14 @@ fn setup_test_db() -> Result<Connection> {
 }
 
 #[test]
-fn insert_duplicate_profile_fails() {
+fn insert_duplicate_profile_fails() -> Result<()> {
     let conn = setup_test_db().expect("Failed to set up test database");
 
     // Création du premier profil
     let new_profil = MasterProfil::new(
         "test_password".to_string(),
         "test_hash".to_string()
-    );
+    )?;
 
     // Insère le premier profil
     assert!(new_profil.insert(&conn).is_ok(), "Failed to insert first master profil");
@@ -72,16 +73,18 @@ fn insert_duplicate_profile_fails() {
     let result = new_profil.insert(&conn);
 
     assert!(result.is_err(), "Duplicate profile insertion did not fail as expected");
+    Ok(())
 }
 
 #[test]
-fn insert_profil(){
+fn insert_profil() -> Result<()>{
 let conn = setup_test_db().expect("Failed to set up test database");
 let new_profil = MasterProfil::new(
     "test_password".to_string(),
     "test_hash".to_string(),
-);
+)?;
 assert!(new_profil.insert(&conn).is_ok(), "Failed to insert first master profil");
+Ok(())
 }
 
 #[test]
@@ -204,7 +207,7 @@ fn salt_randmoness() {
           Ok(v) => { salts.insert(v);},
           Err(_err) => panic!("{}", _err),
         }
-       
+
     }
 
     assert_eq!(salts.len(), 10);
@@ -239,7 +242,7 @@ struct MyStruct {
 
 #[test]
   fn serialize_and_encrypt_struct() -> Result<()> {
-    
+
     let data = MyStruct {
         field1: "Hello, World!".to_string(),
         field2: 42,

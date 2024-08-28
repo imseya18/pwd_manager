@@ -39,26 +39,27 @@ pub struct MasterProfil {
 impl MasterProfil {
 
   pub fn create_store_in_db(name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self> {
-    let mut new_profil = Self::new(name, master_password);
+    let mut new_profil = Self::new(name, master_password)?;
     new_profil.hash_password()?;
     new_profil.insert(db)?;
     Ok(new_profil)
   }
 
-  pub fn new(name: impl Into<String>, master_password: impl Into<String>) ->Self{
-      MasterProfil {
+  pub fn new(name: impl Into<String>, master_password: impl Into<String>) -> Result<Self>{
+      Ok(MasterProfil {
         db_id: None,
         uid: Uuid::new_v4(),
         name: name.into(),
         master_password: master_password.into(),
-        salt: Crypto::generate_rnd_salt(),
+        salt: Crypto::generate_rnd_salt()?,
         derivated_key: None
-      }
+      })
   }
 
   pub fn get_valide_existing_user(name: &str, master_password: &str, db: &Connection) ->Result<Self> {
-      let user_from_db = Self::get_by_name(name, db)?;
+      let mut user_from_db = Self::get_by_name(name, db)?;
       Self::verify_password(master_password, &user_from_db.master_password)?;
+      user_from_db.derivated_key = Some(Crypto::create_key_from_password(master_password, &user_from_db.salt));
       Ok(user_from_db)
   }
 
@@ -100,8 +101,8 @@ impl MasterProfil {
 
 impl Insertable for MasterProfil {
   fn insert(&self, db: &Connection) -> Result<()> {
-      db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
-        (&self.uid.to_string(), &self.name, &self.master_password))?;
+      db.execute("INSERT INTO master_profil (uid_profil, name, master_password, salt) VALUES  (?1, ?2, ?3, ?4)",
+        (&self.uid.to_string(), &self.name, &self.master_password, &self.salt))?;
       Ok(())
   }
 

@@ -36,7 +36,7 @@ impl Crypto {
         Ok(salt)
     }
 
-    pub fn create_key_from_password(password: &str, salt: &[u8]) -> [u8; CREDENTIAL_LEN] {
+    pub fn create_key_from_password(password: &str, salt: &[u8; 16]) -> [u8; CREDENTIAL_LEN] {
         let mut key = [0u8; CREDENTIAL_LEN];
         pbkdf2::derive(
             pbkdf2::PBKDF2_HMAC_SHA256,
@@ -81,7 +81,7 @@ impl Crypto {
         encrypted.extend_from_slice(&cipher.encrypt_vec(data));
         Ok(encrypted)
       }
-      
+
     pub fn decrypt_from_storage(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>> {
         if key.len() != 32 {
             return Err(Error::from("Key must be 32 bytes long"));

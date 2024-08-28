@@ -1,4 +1,4 @@
-use crate::entities::traits::Insertable;
+use crate::{entities::traits::Insertable, Crypto};
 use crate::utils::convert_uid_from_db;
 use crate::anyhow;
 use rusqlite::{Connection, params, Error as RusqliteError};
@@ -30,6 +30,7 @@ pub struct MasterProfil {
   pub uid: Uuid,
   pub name: String,
   pub master_password: String,
+  pub salt: [u8; 16],
   pub derivated_key: Option<[u8; 32]>
 }
 
@@ -50,6 +51,7 @@ impl MasterProfil {
         uid: Uuid::new_v4(),
         name: name.into(),
         master_password: master_password.into(),
+        salt: Crypto::generate_rnd_salt(),
         derivated_key: None
       }
   }
@@ -79,6 +81,7 @@ impl MasterProfil {
                         uid,
                         name: row.get(2)?,
                         master_password: row.get(3)?,
+                        salt: row.get(4)?,
                         derivated_key: None
                     })
       })?;

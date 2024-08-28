@@ -160,6 +160,7 @@ fn insert_new_vault_wrong_user_id() -> Result<()>{
     Ok(())
 }
 
+#[test]
 fn get_new_vault() -> Result<()>{
       let db = setup_test_db().expect("failed to connect to db");
       let main_profil = MasterProfil::create_store_in_db(
@@ -171,9 +172,26 @@ fn get_new_vault() -> Result<()>{
       let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault2")
         .insert(&db);
 
-      let vaults_result = Vault::get_by_user_id(profil_from_db.db_id.ok_or(err), &db)
+      let vaults_result = Vault::get_by_user_id(profil_from_db.db_id.ok_or("no_id_found")?, &db)?;
+      for vault in vaults_result.iter(){
+        assert!(vault.is_ok(), "one of the vault is coromped")
+      }
       Ok(())
 }
+
+#[test]
+fn test_delete_ok() -> Result<()>{
+  let db = setup_test_db().expect("failed to connect to db");
+  let main_profil = MasterProfil::create_store_in_db(
+    "JGLP2", "1234",
+    &db)?;
+  let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+  profil_from_db.delete(&db)?;
+  let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db);
+  assert!(profil_from_db.is_err(), "profil should be delete need an error");
+  Ok(())
+}
+
 /* ========== CRYPTO ========== */
 
 #[test]
@@ -217,7 +235,7 @@ struct MyStruct {
 
 #[test]
   fn serialize_and_encrypt_struct() {
-    
+
     let data = MyStruct {
         field1: "Hello, World!".to_string(),
         field2: 42,
@@ -232,7 +250,7 @@ struct MyStruct {
     match decrypted_data {
       Ok(v) => {
           let clear_data: MyStruct = serde_json::from_slice(&v).unwrap();
-          assert_eq!(clear_data, data); 
+          assert_eq!(clear_data, data);
       },
       Err(_) => panic!("Decryption failed"),
     }

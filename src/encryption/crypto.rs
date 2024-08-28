@@ -16,6 +16,7 @@ type Aes256Cbc = Cbc<Aes256, Pkcs7>;
 
 pub type Error = Box<dyn std::error::Error>;
 pub type Result<T> = core::result::Result<T, Error>;
+use ring::error::Unspecified;
 
 const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN; // Longueur de la clé AES 256 bits
 const ITERATIONS: NonZeroU32 = unsafe { NonZeroU32::new_unchecked(100_000) }; // Nombre d'itérations recommandé pour PBKDF2
@@ -27,11 +28,12 @@ pub struct Crypto {
 
 impl Crypto {
 
-    pub fn generate_rnd_salt() -> [u8; 16] {
+    pub fn generate_rnd_salt() -> Result<[u8; 16]> {
         let mut salt = [0u8; 16];
-
-        rand::SystemRandom::new().fill(&mut salt).unwrap();
-        salt
+        ring::rand::SystemRandom::new()
+            .fill(&mut salt)
+            .map_err(|e: Unspecified| Error::from(format!("Failed to generate salt: {:?}", e)))?;
+        Ok(salt)
     }
 
     pub fn create_key_from_password(password: &str, salt: &[u8]) -> [u8; CREDENTIAL_LEN] {
@@ -46,34 +48,46 @@ impl Crypto {
         key
     }
 
-    pub fn encrypt(cleartext: &str, key: &[u8]) -> Vec<u8> {
+    pub fn encrypt(cleartext: &str, key: &[u8]) -> Result<Vec<u8>> {
+        if key.len() != 32 {
+            return Err(Error::from("Key must be 32 bytes long"));
+        }
         let cipher = ChaCha20Poly1305::new(GenericArray::from_slice(key));
         let nonce = ChaCha20Poly1305::generate_nonce(&mut OsRng);
-        let mut obsf = cipher.encrypt(&nonce, cleartext.as_bytes()).unwrap();
+        let mut obsf = cipher.encrypt(&nonce, cleartext.as_bytes()).map_err(|e| Error::from(format!("Encryption failed: {}", e)))?;
         obsf.splice(..0, nonce.iter().copied());
-        obsf
+        Ok(obsf)
     }
 
-    pub fn decrypt(obsf: &[u8], key: &[u8]) -> String {
+    pub fn decrypt(obsf: &[u8], key: &[u8]) -> Result<String> {
+        if key.len() != 32 {
+            return Err(Error::from("Key must be 32 bytes long"));
+        }
         type NonceSize = <ChaCha20Poly1305 as AeadCore>::NonceSize;
         let cipher = ChaCha20Poly1305::new(GenericArray::from_slice(key));
         let (nonce, ciphertext) = obsf.split_at(NonceSize::to_usize());
         let nonce = GenericArray::from_slice(nonce);
-        let plaintext = cipher.decrypt(nonce, ciphertext).unwrap();
-        String::from_utf8(plaintext).unwrap()
+        let plaintext = cipher.decrypt(nonce, ciphertext).map_err(|e| Error::from(format!("Decryption failed: {}", e)))?;
+        Ok(String::from_utf8(plaintext)?)
     }
 
-    pub fn encrypt_for_storage(data: &[u8], key: &[u8; 32]) -> Vec<u8> {
-        let iv: [u8; 16] = Crypto::generate_rnd_salt();
-        let cipher = Aes256Cbc::new_from_slices(key, &iv).unwrap();
+    pub fn encrypt_for_storage(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>> {
+        if key.len() != 32 {
+            return Err(Error::from("Key must be 32 bytes long"));
+        }
+        let iv: [u8; 16] = Crypto::generate_rnd_salt()?;
+        let cipher = Aes256Cbc::new_from_slices(key, &iv)?;
         let mut encrypted = iv.to_vec();
         encrypted.extend_from_slice(&cipher.encrypt_vec(data));
-        encrypted
+        Ok(encrypted)
       }
       
     pub fn decrypt_from_storage(data: &[u8], key: &[u8; 32]) -> Result<Vec<u8>> {
+        if key.len() != 32 {
+            return Err(Error::from("Key must be 32 bytes long"));
+        }
         let (iv, ciphertext) = data.split_at(16);
-        let cipher = Aes256Cbc::new_from_slices(key, iv).unwrap();
+        let cipher = Aes256Cbc::new_from_slices(key, iv)?;
         Ok(cipher.decrypt_vec(ciphertext)?)
       }
 }

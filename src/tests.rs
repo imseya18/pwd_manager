@@ -173,7 +173,11 @@ fn salt_randmoness() {
 
     for _ in 0..10 {
         let salt = Crypto::generate_rnd_salt();
-        salts.insert(salt);
+        match salt {
+          Ok(v) => { salts.insert(v);},
+          Err(_err) => panic!("{}", _err),
+        }
+       
     }
 
     assert_eq!(salts.len(), 10);
@@ -207,7 +211,7 @@ struct MyStruct {
 }
 
 #[test]
-  fn serialize_and_encrypt_struct() {
+  fn serialize_and_encrypt_struct() -> Result<()> {
     
     let data = MyStruct {
         field1: "Hello, World!".to_string(),
@@ -216,15 +220,11 @@ struct MyStruct {
     let serialized = serde_json::to_vec(&data).unwrap();
 
     let key: [u8; 32] = [13, 80, 233, 146, 255, 115, 143, 118, 151, 220, 183, 180, 113, 119, 43, 159, 164, 224, 121, 75, 103, 233, 252, 159, 108, 53, 127, 51, 22, 222, 165, 86];
-    let encrypted_data = Crypto::encrypt_for_storage(&serialized, &key);
+    let encrypted_data = Crypto::encrypt_for_storage(&serialized, &key)?;
 
-    let decrypted_data = Crypto::decrypt_from_storage(&encrypted_data, &key);
+    let decrypted_data = Crypto::decrypt_from_storage(&encrypted_data, &key)?;
 
-    match decrypted_data {
-      Ok(v) => {
-          let clear_data: MyStruct = serde_json::from_slice(&v).unwrap();
-          assert_eq!(clear_data, data); 
-      },
-      Err(_) => panic!("Decryption failed"),
-    }
+    let clear_data: MyStruct = serde_json::from_slice(&decrypted_data).unwrap();
+    assert_eq!(clear_data, data);
+    Ok(())
   }

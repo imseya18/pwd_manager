@@ -1,4 +1,4 @@
-use crate::entities::traits::Insertable;
+use crate::{entities::traits::Insertable, Crypto};
 use crate::utils::convert_uid_from_db;
 use crate::anyhow;
 use rusqlite::{Connection, params, Error as RusqliteError};
@@ -30,6 +30,7 @@ pub struct MasterProfil {
   pub uid: Uuid,
   pub name: String,
   pub master_password: String,
+  pub salt: [u8; 16],
   pub derivated_key: Option<[u8; 32]>
 }
 
@@ -50,6 +51,7 @@ impl MasterProfil {
         uid: Uuid::new_v4(),
         name: name.into(),
         master_password: master_password.into(),
+        salt: Crypto::generate_rnd_salt(),
         derivated_key: None
       }
   }
@@ -79,6 +81,7 @@ impl MasterProfil {
                         uid,
                         name: row.get(2)?,
                         master_password: row.get(3)?,
+                        salt: row.get(4)?,
                         derivated_key: None
                     })
       })?;
@@ -100,5 +103,11 @@ impl Insertable for MasterProfil {
       db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
         (&self.uid.to_string(), &self.name, &self.master_password))?;
       Ok(())
+  }
+
+  fn delete(&self, db: &Connection) -> Result<()> {
+    let db_id = self.db_id.ok_or("no id_profil value found in struct")?;
+    db.execute("DELETE FROM master_profil WHERE id_profil = ?1", params![db_id])?;
+    Ok(())
   }
 }

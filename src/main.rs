@@ -21,14 +21,7 @@ fn main() -> Result<()> {
 	let db = &database.db;
   let new_profil = MasterProfil::get_by_name("JGLP", db)?;
   println!("{:#?}", new_profil);
-  let vaults = Vault::get_by_user_id(3, db)?;
-  println!("{:?}", vaults.len());
-  for vault in vaults.iter(){
-    match vault {
-      Ok(v) => println!("{:#?}", v),
-      Err(e) => println!("{:?}", e)
-    }
-  }
+  new_profil.delete(db)?;
   Ok(())
 }
 

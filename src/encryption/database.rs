@@ -53,7 +53,8 @@ impl  Database {
                 id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid_profil TEXT not null unique,
                 name TEXT not null unique,
-                master_password TEXT not null);
+                master_password TEXT not null,
+                salt BLOB not null);
 
             CREATE TABLE if not exists vault (
                 id_vault INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -154,16 +154,43 @@ fn insert_new_vault() -> Result<()>{
 #[test]
 fn insert_new_vault_wrong_user_id() -> Result<()>{
     let db = setup_test_db().expect("failed to connect to db");
-    let main_profil = MasterProfil::create_store_in_db(
-      "JGLP2", "1234",
-      &db)?;
-    let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
     let new_vault = Vault::new( 457457, "this is a new vault")
       .insert(&db);
     assert!(new_vault.is_err(), "Expected Error user_id not exist");
     Ok(())
 }
 
+#[test]
+fn get_new_vault() -> Result<()>{
+      let db = setup_test_db().expect("failed to connect to db");
+      let main_profil = MasterProfil::create_store_in_db(
+        "JGLP2", "1234",
+        &db)?;
+      let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+      let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
+        .insert(&db);
+      let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault2")
+        .insert(&db);
+
+      let vaults_result = Vault::get_by_user_id(profil_from_db.db_id.ok_or("no_id_found")?, &db)?;
+      for vault in vaults_result.iter(){
+        assert!(vault.is_ok(), "one of the vault is coromped")
+      }
+      Ok(())
+}
+
+#[test]
+fn test_delete_ok() -> Result<()>{
+  let db = setup_test_db().expect("failed to connect to db");
+  let main_profil = MasterProfil::create_store_in_db(
+    "JGLP2", "1234",
+    &db)?;
+  let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+  profil_from_db.delete(&db)?;
+  let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db);
+  assert!(profil_from_db.is_err(), "profil should be delete need an error");
+  Ok(())
+}
 
 /* ========== CRYPTO ========== */
 

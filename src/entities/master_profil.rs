@@ -68,11 +68,11 @@ impl MasterProfil {
       Ok(())
   }
 
-  pub fn self_insert(self, db: &Connection) -> Result<Self> {
-      db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
-        (&self.uid.to_string(), &self.name, &self.master_password))?;
-      Ok(self)
-  }
+  // pub fn self_insert(self, db: &Connection) -> Result<Self> {
+  //     db.execute("INSERT INTO master_profil (uid_profil, name, master_password) VALUES  (?1, ?2, ?3)",
+  //       (&self.uid.to_string(), &self.name, &self.master_password))?;
+  //     Ok(self)
+  // }
 
   pub fn get_by_name(name: &str ,db: &Connection) -> Result<Self> {
       let profil = db.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {

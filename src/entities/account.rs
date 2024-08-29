@@ -1,4 +1,8 @@
-use crate::entities::traits::Insertable;
+use crate::{encryption, entities::traits::Insertable, Crypto};
+use crate::utils::convert_uid_from_db;
+use uuid::Uuid;
+use serde::{Deserialize, Serialize};
+use serde_json;
 use rusqlite::Connection;
 use chrono::{Local, TimeZone, Utc};
 use super::{Error, Result};
@@ -6,12 +10,14 @@ use super::{Error, Result};
 pub struct Account {
   db_id: Option<i64>,
   vault_id: i64,
-  uid: String,
+  uid: Uuid,
   sensitive_data: SensitiveData,
+  crypted_data: Option<Vec<u8>>,
   created_at: i64,
   updated_at: i64
 }
 
+#[derive(Deserialize, Serialize)]
 struct SensitiveData {
   label: Option<String>,
   name: String,
@@ -24,10 +30,9 @@ struct SensitiveData {
 impl Account {
     pub fn new(
         vault_id: i64,
-        uid: String,
-        name: String,
-        account_name: String,
-        password: String,
+        name: impl Into<String>,
+        account_name: impl Into<String>,
+        password: impl Into<String>,
         label: Option<String>,
         url: Option<String>,
         note: Option<String>,
@@ -35,28 +40,37 @@ impl Account {
         Account {
             db_id: None,
             vault_id,
-            uid,
+            uid: Uuid::new_v4(),
             sensitive_data: SensitiveData{
                 label,
-                name,
-                account_name,
-                password,
+                name: name.into(),
+                account_name: account_name.into(),
+                password: password.into(),
                 url,
                 note
             },
+            crypted_data: None,
             created_at: Local::now().timestamp(),
             updated_at: Local::now().timestamp(),
         }
     }
+    pub fn store_in_db(&mut self, encryption_key:&[u8; 32], vault_id: i64, db: &Connection) -> Result<()> {
+      let serialized_struct = serde_json::to_vec(&self.sensitive_data)?;
+      self.crypted_data = Some(Crypto::encrypt_for_storage(&serialized_struct, encryption_key)?);
+      self.insert(db)?;
+      Ok(())
+    }
 }
 
-// impl Insertable for Account {
-//   fn insert(&self, db: &Connection) -> Result<()> {
+impl Insertable for Account {
+  fn insert(&self, db: &Connection) -> Result<()> {
+    db.execute("INSERT INTO account (id_vault, uid_account, sensitive_data, created_at, updated_at)
+                    VALUES  (?1, ?2, ?3, ?4, ?5)",
+      (&self.vault_id ,&self.uid.to_string(), &self.crypted_data ,&self.created_at, &self.updated_at))?;
+    Ok(())
+  }
 
-//     db.execute("INSERT INTO account (id_vault, uid_account, sensitive_data, created_at, updated_at)
-//                     VALUES  (?1, ?2, ?3, ?4, ?5)",
-//       ( &self.vault_id ,&self.uid, &self.created_at, &self.updated_at))
-//               .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-//     Ok(())
-//   }
-// }
+  fn delete(&self, db: &Connection) -> Result<()> {
+    Ok(())
+  }
+}

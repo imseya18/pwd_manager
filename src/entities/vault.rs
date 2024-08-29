@@ -48,7 +48,10 @@ impl  Vault {
     })?;
 
     /*contain Vec of result*/
-    let vaults = vaults_itter.map(|result| result.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)).collect();
+    let vaults:Vec<Result<Vault>> = vaults_itter.map(|result| result.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)).collect();
+    if vaults.is_empty(){
+      return Err(Box::from("No vault found for this user_id"));
+    }
     Ok(vaults)
   }
 }

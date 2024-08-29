@@ -22,37 +22,31 @@ use hex_literal::hex;
 
 fn setup_test_db() -> Result<Connection> {
     let conn = Connection::open_in_memory()?;
-    conn.execute("PRAGMA foreign_keys = ON;", [])?;
     conn.execute_batch(
-    "PRAGMA foreign_keys = ON;
+      "PRAGMA foreign_keys = ON;
 
       CREATE TABLE if not exists master_profil (
           id_profil INTEGER PRIMARY KEY AUTOINCREMENT,
           uid_profil TEXT not null unique,
           name TEXT not null unique,
           master_password TEXT not null,
-          salt BlOB not null);
+          salt BLOB not null);
 
       CREATE TABLE if not exists vault (
           id_vault INTEGER PRIMARY KEY AUTOINCREMENT,
-          id_profil INTEGER REFERENCES master_profil (id_profil) not null,
+          id_profil INTEGER REFERENCES master_profil (id_profil) ON DELETE CASCADE not null,
           uid_vault TEXT not null unique,
-          name TEXT not null,
+          name BLOB not null,
           created_at TIMESTAMP not null,
           updated_at TIMESTAMP);
 
       CREATE TABLE if not exists account (
           id_account INTEGER PRIMARY KEY AUTOINCREMENT,
-          id_vault INTEGER REFERENCES vault (id_vault) not null,
+          id_vault INTEGER REFERENCES vault (id_vault) ON DELETE CASCADE not null,
           uid_account TEXT not null unique,
-          name TEXT not null,
-          label TEXT,
-          account_name TEXT not null,
-          password TEXT not null,
-          url TEXT,
-          note TEXT,
-          created_at TIMESTAMP not null,
-          updated_at TIMESTAMP)")?;
+          sensitive_data BLOB not null,
+          created_at BLOB not null,
+          updated_at BLOB not null)")?;
     Ok(conn)
 }
 
@@ -171,9 +165,9 @@ fn get_new_vault() -> Result<()>{
         &db)?;
       let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
       let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault")
-        .insert(&db);
+        .insert(&db)?;
       let new_vault = Vault::new(profil_from_db.db_id.ok_or("User_id is None")?, "this is a new vault2")
-        .insert(&db);
+        .insert(&db)?;
 
       let vaults_result = Vault::get_by_user_id(profil_from_db.db_id.ok_or("no_id_found")?, &db)?;
       for vault in vaults_result.iter(){
@@ -183,7 +177,7 @@ fn get_new_vault() -> Result<()>{
 }
 
 #[test]
-fn test_delete_ok() -> Result<()>{
+fn test_delete_master_profil_ok() -> Result<()>{
   let db = setup_test_db().expect("failed to connect to db");
   let main_profil = MasterProfil::create_store_in_db(
     "JGLP2", "1234",
@@ -192,6 +186,26 @@ fn test_delete_ok() -> Result<()>{
   profil_from_db.delete(&db)?;
   let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db);
   assert!(profil_from_db.is_err(), "profil should be delete need an error");
+  Ok(())
+}
+
+#[test]
+fn test_delete_vault_ok() -> Result<()>{
+  let db = setup_test_db().expect("failed to connect to db");
+  let main_profil = MasterProfil::create_store_in_db(
+    "JGLP2", "1234",
+    &db)?;
+  let profil_from_db = MasterProfil::get_valide_existing_user("JGLP2", "1234", &db)?;
+  let new_vault = Vault::create_store_in_db(profil_from_db.db_id.ok_or("no id found")?, "test", &db)?;
+  let vaults_list = Vault::get_by_user_id(profil_from_db.db_id.ok_or("no profil_id found in struct")?, &db)?;
+  for vault in vaults_list.iter() {
+    match vault {
+      Ok(v) => v.delete(&db)?,
+      Err(v) => println!("vault is corrupt"),
+    }
+  }
+  let vaults = Vault::get_by_user_id(profil_from_db.db_id.ok_or("no profil_id found in struct")?, &db);
+  assert!(vaults.is_err(), "profil should be delete need an error");
   Ok(())
 }
 

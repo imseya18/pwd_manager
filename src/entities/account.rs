@@ -3,7 +3,7 @@ use crate::utils::convert_uid_from_db;
 use uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use rusqlite::Connection;
+use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
 use super::{Error, Result};
 
@@ -54,10 +54,22 @@ impl Account {
             updated_at: Local::now().timestamp(),
         }
     }
+
     pub fn store_in_db(&mut self, encryption_key:&[u8; 32], vault_id: i64, db: &Connection) -> Result<()> {
       let serialized_struct = serde_json::to_vec(&self.sensitive_data)?;
       self.crypted_data = Some(Crypto::encrypt_for_storage(&serialized_struct, encryption_key)?);
       self.insert(db)?;
+      Ok(())
+    }
+
+    pub fn get_all_account(vault_id:i64, encryption_key:&[u8; 32], db: &Connection) -> Result<()>{
+      let mut query = db.prepare("Select * FROM account WHERE id_vault = ?1")?;
+      let account_iter = query.query_map([vault_id], |row| {
+        let uid = convert_uid_from_db(row.get(2)?)?;
+        let encrypted_struct: Vec<u8> = row.get(3)?;
+        // let decrypted_struct = Crypto::decrypt_from_storage(&encrypted_struct, encryption_key).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
+        Ok(())
+      })?;
       Ok(())
     }
 }
@@ -71,6 +83,8 @@ impl Insertable for Account {
   }
 
   fn delete(&self, db: &Connection) -> Result<()> {
+    let db_id = self.db_id.ok_or("No Account_id found on this struct")?;
+    db.execute("DELETE FROM account WHERE id_account = ?1", params![db_id])?;
     Ok(())
   }
 }

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
-use super::{Error, Result};
+use super::{MyError, Result};
 
 pub struct Account {
   db_id: Option<i64>,
@@ -83,7 +83,7 @@ impl Insertable for Account {
   }
 
   fn delete(&self, db: &Connection) -> Result<()> {
-    let db_id = self.db_id.ok_or("No Account_id found on this struct")?;
+    let db_id = self.db_id.ok_or_else(|| MyError::Unknown("No Account_id found on this struct".to_string()))?;
     db.execute("DELETE FROM account WHERE id_account = ?1", params![db_id])?;
     Ok(())
   }

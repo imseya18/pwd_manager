@@ -3,7 +3,7 @@ use crate::utils::convert_uid_from_db;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
 use uuid::Uuid;
-use super::{Error, Result};
+use super::Result;
 
 #[derive(Debug)]
 pub struct Vault {
@@ -65,7 +65,7 @@ impl Insertable for Vault {
   }
 
   fn delete(&self, db: &Connection) -> Result<()> {
-    let db_id = self.db_id.ok_or("no id_vault value found in struct")?;
+    let db_id = self.db_id.ok_or_else(|| MyError::Unknown("No Account_id found on this struct".to_string()))?;
     db.execute("DELETE FROM vault WHERE id_vault = ?1", params![db_id])?;
     Ok(())
   }

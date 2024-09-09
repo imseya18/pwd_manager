@@ -1,28 +1,9 @@
 use crate::{entities::traits::Insertable, Crypto};
 use crate::utils::convert_uid_from_db;
-use crate::anyhow;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 use uuid::Uuid;
-use super::{Error, Result};
-
-#[derive(Debug)]
-pub enum MasterProfileError {
-  CrypteError(BcryptError),
-  Other(String),
-}
-
-impl From<BcryptError> for MasterProfileError {
-  fn from(err: BcryptError) -> Self{
-    MasterProfileError::CrypteError(err)
-  }
-}
-
-// impl From<rusqlite::Error> for MasterProfileError {
-//   fn from(err: rusqlite::Error) -> Self {
-//       MasterProfileError::RuSqliteError(err)
-//   }
-// }
+use super::{MyError, Result};
 
 #[derive(Debug)]
 pub struct MasterProfil {
@@ -88,7 +69,7 @@ impl MasterProfil {
         Ok(())
       }
       else {
-        Err("Invalide Password".into())
+        Err(MyError::Unknown("Invalide Password".to_string()))
       }
     }
 }

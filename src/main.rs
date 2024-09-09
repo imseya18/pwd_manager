@@ -3,7 +3,7 @@ mod tests;
 mod entities;
 mod encryption;
 mod utils;
-
+mod error;
 use std::path::{PathBuf, Path};
 use ring::rand::{self, SecureRandom};
 
@@ -14,6 +14,7 @@ use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 use crate::entities::*;
 use crate::encryption::*;
 use crate::crypto::*;
+use error::MyError;
 
 fn main() -> Result<()> {
 

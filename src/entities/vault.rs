@@ -3,7 +3,7 @@ use crate::utils::convert_uid_from_db;
 use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
 use uuid::Uuid;
-use super::Result;
+use super::{MyError, Result};
 
 #[derive(Debug)]
 pub struct Vault {
@@ -48,9 +48,9 @@ impl  Vault {
     })?;
 
     /*contain Vec of result*/
-    let vaults:Vec<Result<Vault>> = vaults_itter.map(|result| result.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)).collect();
+    let vaults:Vec<Result<Vault>> = vaults_itter.map(|result| result.map_err(MyError::from)).collect();
     if vaults.is_empty(){
-      return Err(Box::from("No vault found for this user_id"));
+      return Err(MyError::Unknown("No vault found for this user_id".to_string()));
     }
     Ok(vaults)
   }

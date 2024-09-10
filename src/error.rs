@@ -1,6 +1,8 @@
 use thiserror::Error;
 use std::fmt;
 use std::string::FromUtf8Error;
+use block_modes::{BlockModeError, InvalidKeyIvLength};
+use chacha20poly1305::aead::Error as ChachaPolyError;
 
 #[derive(Error, Debug)]
 pub enum MyError {
@@ -19,6 +21,16 @@ pub enum MyError {
   #[error("utf8 error: {0}")]
   Utf8(#[from] FromUtf8Error),
 
+  #[error("BlockMode error: {0}")]
+  Blockmode(#[from] BlockModeError),
+
+  #[error("AES256CBc error: {0}")]
+  Aes(#[from] InvalidKeyIvLength),
+
+  #[error("ChaChaPoly error: {0}")]
+  Chachapoly(String),
+
   #[error("Unknown error: {0}")]
   Unknown(String),
+
 }

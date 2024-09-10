@@ -53,7 +53,7 @@ impl Crypto {
         }
         let cipher = ChaCha20Poly1305::new(GenericArray::from_slice(key));
         let nonce = ChaCha20Poly1305::generate_nonce(&mut OsRng);
-        let mut obsf = cipher.encrypt(&nonce, cleartext.as_bytes()).map_err(|e| Error::from(format!("Encryption failed: {}", e)))?;
+        let mut obsf = cipher.encrypt(&nonce, cleartext.as_bytes()).map_err(|e| MyError::Chachapoly(e.to_string()))?;
         obsf.splice(..0, nonce.iter().copied());
         Ok(obsf)
     }

@@ -82,7 +82,7 @@ impl Insertable for MasterProfil {
   }
 
   fn delete(&self, db: &Connection) -> Result<()> {
-    let db_id = self.db_id.ok_or("no id_profil value found in struct")?;
+    let db_id = self.db_id.ok_or(MyError::Unknown("no id_profil value found in struct".to_string()))?;
     db.execute("DELETE FROM master_profil WHERE id_profil = ?1", params![db_id])?;
     Ok(())
   }

@@ -68,8 +68,8 @@ impl Account {
       let account_iter = query.query_map([vault_id], |row| {
         let uid = convert_uid_from_db(row.get(2)?)?;
         let encrypted_struct: Vec<u8> = row.get(3)?;
-        let decrypted_struct = Crypto::decrypt_from_storage(&encrypted_struct, encryption_key).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
-        let sensitive_data: SensitiveData = serde_json::from_slice(&decrypted_struct).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
+        let decrypted_struct = Crypto::decrypt_from_storage(&encrypted_struct, encryption_key).map_err(|e| RusqliteError::UserFunctionError(Box::new(e)))?;
+        let sensitive_data: SensitiveData = serde_json::from_slice(&decrypted_struct).map_err(|e| RusqliteError::UserFunctionError(Box::new(e)))?;
         Ok(Account{
           db_id: row.get(0)?,
           vault_id: row.get(1)?,

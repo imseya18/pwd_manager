@@ -32,5 +32,4 @@ pub enum MyError {
 
   #[error("Unknown error: {0}")]
   Unknown(String),
-
 }

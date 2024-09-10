@@ -7,6 +7,7 @@ use rusqlite::{Connection, params, Error as RusqliteError};
 use chrono::{Local, TimeZone, Utc};
 use super::{MyError, Result};
 
+#[derive(Debug)]
 pub struct Account {
   db_id: Option<i64>,
   vault_id: i64,
@@ -17,7 +18,7 @@ pub struct Account {
   updated_at: i64
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 struct SensitiveData {
   label: Option<String>,
   name: String,
@@ -62,15 +63,28 @@ impl Account {
       Ok(())
     }
 
-    pub fn get_all_account(vault_id:i64, encryption_key:&[u8; 32], db: &Connection) -> Result<()>{
+    pub fn get_all_account(vault_id:i64, encryption_key:&[u8; 32], db: &Connection) -> Result<Vec<Result<Account>>>{
       let mut query = db.prepare("Select * FROM account WHERE id_vault = ?1")?;
       let account_iter = query.query_map([vault_id], |row| {
         let uid = convert_uid_from_db(row.get(2)?)?;
         let encrypted_struct: Vec<u8> = row.get(3)?;
-        // let decrypted_struct = Crypto::decrypt_from_storage(&encrypted_struct, encryption_key).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
-        Ok(())
+        let decrypted_struct = Crypto::decrypt_from_storage(&encrypted_struct, encryption_key).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
+        let sensitive_data: SensitiveData = serde_json::from_slice(&decrypted_struct).map_err(|e| RusqliteError::UserFunctionError(Box::new(e) as Box<dyn std::error::Error + Send + Sync>))?;
+        Ok(Account{
+          db_id: row.get(0)?,
+          vault_id: row.get(1)?,
+          uid,
+          sensitive_data,
+          crypted_data: None,
+          created_at: row.get(4)?,
+          updated_at: row.get(5)?
+        })
       })?;
-      Ok(())
+      let accounts: Vec<Result<Account>> = account_iter.map(|result| result.map_err(MyError::from)).collect();
+      if accounts.is_empty(){
+        return Err(MyError::Unknown("No accounts found for this user_id".to_string()));
+      }
+      Ok(accounts)
     }
 }
 

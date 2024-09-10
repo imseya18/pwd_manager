@@ -21,8 +21,15 @@ fn main() -> Result<()> {
 	let database = Database::init(r"stored/data.db")?;
 	let db = &database.db;
   let new_profil = MasterProfil::get_valide_existing_user("JGLP", "oui c'est ouioui", db)?;
-  let mut account = Account::new(6, "first account", "JGLPLOL", "skldngklsndgnkl", None, Some("zob".to_string()), None);
-  account.store_in_db(&new_profil.derivated_key.ok_or("err")?, 6, db)?;
+  //let mut account = Account::new(6, "first account", "JGLPLOL", "skldngklsndgnkl", None, Some("zob".to_string()), None);
+  //account.store_in_db(&new_profil.derivated_key.ok_or("err")?, 6, db)?;
+  let accounts = Account::get_all_account(6, &new_profil.derivated_key.ok_or("err")?, db)?;
+  for account in accounts.iter() {
+    match account{
+      Ok(a) => println!("{:#?}", a),
+      Err(e) => println!("{:?}", e)
+    }
+  }
   Ok(())
 }
 

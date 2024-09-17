@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "herakles",
+    "productName": "Herakles",
     "version": "0.1.0"
   },
   "tauri": {
@@ -20,7 +20,7 @@
     },
     "windows": [
       {
-        "title": "herakles",
+        "title": "Herakles",
         "width": 800,
         "height": 600
       }

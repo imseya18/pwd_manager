@@ -14,7 +14,8 @@
     "@nextui-org/theme": "^2.2.11",
     "@tauri-apps/api": "^1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "simplebar-react": "^3.2.6"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1",

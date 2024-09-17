@@ -7,9 +7,20 @@ export default {
     // Ajoutez ce chemin pour inclure les composants de Next UI
     './node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}',],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        background: {
+          DEFAULT: "#18181B",
+          // ... autres nuances si nécessaire
+        },
+              // Couleurs personnalisées pour le mode sombre
+              dark: {
+                background: '#71717A',
+                secondary: '#A855F7',
+              },
+            },
+    },
   },
   darkMode:'class',
   plugins: [nextui(),],
 }
-

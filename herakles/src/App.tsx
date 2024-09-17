@@ -1,7 +1,6 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import {Button, ButtonGroup} from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api/tauri";
+import { useState } from "react";
 import "./App.css";
 
 function App() {
@@ -14,61 +13,10 @@ function App() {
   }
 
   return (
-    <div className="container">
-      <div className="flex flex-wrap gap-4 items-center">
-      <Button color="primary" variant="solid">
-        Solid
+    <div className="flex items-center justify-center h-screen">
+      <Button size="lg" className="w-[200px]">
+        Large
       </Button>
-      <Button color="primary" variant="faded">
-        Faded
-      </Button>  
-      <Button color="primary" variant="bordered">
-        Bordered
-      </Button>  
-      <Button color="primary" variant="light">
-        Light
-      </Button>  
-      <Button color="primary" variant="flat">
-        Flat
-      </Button>  
-      <Button color="primary" variant="ghost">
-        Ghost
-      </Button>  
-      <Button color="primary" variant="shadow">
-        Shadow
-      </Button>  
-    </div>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
     </div>
   );
 }

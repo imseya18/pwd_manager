@@ -6,7 +6,7 @@ import App from "./App";
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <NextUIProvider>
-  <main className="dark text-forgground bg-background h-screen">
+  <main className="dark text-foreground bg-background min-h-screen">
       <App />
   </main>
     </NextUIProvider>

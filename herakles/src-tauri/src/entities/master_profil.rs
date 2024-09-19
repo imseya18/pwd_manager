@@ -1,6 +1,8 @@
 use crate::{entities::traits::Insertable, Crypto};
 use crate::utils::convert_uid_from_db;
 use rusqlite::{Connection, params, Error as RusqliteError};
+use r2d2_sqlite::SqliteConnectionManager;
+use r2d2::Pool;
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 use uuid::Uuid;
 use super::{MyError, Result};
@@ -19,7 +21,7 @@ pub struct MasterProfil {
 
 impl MasterProfil {
 
-  pub fn create_store_in_db(name: impl Into<String>, master_password: impl Into<String>, db: &Connection) -> Result<Self> {
+  pub fn create_store_in_db(name: impl Into<String>, master_password: impl Into<String>, db: &Pool<SqliteConnectionManager>) -> Result<Self> {
     let mut new_profil = Self::new(name, master_password)?;
     new_profil.hash_password()?;
     new_profil.insert(db)?;
@@ -75,8 +77,9 @@ impl MasterProfil {
 }
 
 impl Insertable for MasterProfil {
-  fn insert(&self, db: &Connection) -> Result<()> {
-      db.execute("INSERT INTO master_profil (uid_profil, name, master_password, salt) VALUES  (?1, ?2, ?3, ?4)",
+  fn insert(&self, db: &Pool<SqliteConnectionManager>) -> Result<()> {
+      let conn = db.get()?;
+      conn.execute("INSERT INTO master_profil (uid_profil, name, master_password, salt) VALUES  (?1, ?2, ?3, ?4)",
         (&self.uid.to_string(), &self.name, &self.master_password, &self.salt))?;
       Ok(())
   }

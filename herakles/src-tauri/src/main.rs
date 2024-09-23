@@ -11,7 +11,6 @@ use crate::crypto::*;
 use entities::Result;
 use tauri::Manager;
 
-use tauri_plugin_log::{LogTarget, Builder};
 // Learn more about Tauri commands at v
 #[tauri::command]
 fn greet(name: &str) -> String {

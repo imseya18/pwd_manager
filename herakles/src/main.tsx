@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import Page from './page';
 import { NextUIProvider, Image } from '@nextui-org/react';
+import {ThemeProvider as NextThemesProvider} from "next-themes";
 
 import logo from './media/img/logo_transparent.svg';
 
@@ -11,7 +12,8 @@ import logo from './media/img/logo_transparent.svg';
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <NextUIProvider>
-      <main className='dark text-foreground bg-background'>
+    <NextThemesProvider attribute="class" defaultTheme="dark">
+      {/* <main className='dark text-foreground bg-background'> */}
           <div className="relative flex flex-col h-screen">
             <div className="w-full flex flex-row items-center py-5 px-5">
               <Image
@@ -26,7 +28,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
               <Page />
             </div>
           </div>
-          </main>
+          {/* </main> */}
+          </NextThemesProvider>
     </NextUIProvider>
   </React.StrictMode>
 );

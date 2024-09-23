@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html {
+  background-color: hsl(var(--nextui-background));
+}
+
+
 .simplebar-scrollbar {
   width: 12px !important; /* Largeur de la barre de défilement */
   
@@ -48,4 +54,8 @@
 .vault-container-editor-icon:hover {
   background: #3b3b3b;
   border-radius: 8px;
+}
+
+.pwd-top-margin {
+  margin-top: 40px !important;
 }

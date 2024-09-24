@@ -18,8 +18,8 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn add_profil(database: tauri::State<Database>) -> Result<()>{
-   let _ = MasterProfil::create_store_in_db("test12", "ouiouioui", &database.db)?;
+fn add_profil(database: tauri::State<Database>, name: &str, password: &str) -> Result<()>{
+   let _ = MasterProfil::create_store_in_db(name, password, &database.db)?;
    Ok(())
 }
 

@@ -1,25 +1,24 @@
 import {
-    Button,
-    Input,
-    Modal,
-    ModalBody,
-    ModalContent,
-    ModalFooter,
-    ModalHeader,
-    useDisclosure
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure
 } from '@nextui-org/react';
 import React, { useRef } from 'react';
+import { add_profil } from '../backend_fn.tsx';
 import { LockIcon } from './LockIcon.jsx'; // Chemin vers vos icônes
 import { MailIcon } from './MailIcon.jsx';
-
 
 const LoginModal: React.FC = () => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const accountNameRef = useRef(null);
   const passwordRef = useRef(null);
 
-   const handleSignIn = () => {
-     // Récupérer les valeurs des inputs au moment du clic
+   const handleSignIn = async () => {
      const accountName = accountNameRef.current.value;
      const password = passwordRef.current.value;
 
@@ -28,8 +27,12 @@ const LoginModal: React.FC = () => {
        return;
      }
 
-     console.log("Account Name:", accountName);
-     console.log("Password:", password);
+     try {
+        await add_profil(accountName, password);
+     }
+     catch(error){
+       console.error("Erreur lors de l'ajout du profil :", error);
+     }
 
    };
 

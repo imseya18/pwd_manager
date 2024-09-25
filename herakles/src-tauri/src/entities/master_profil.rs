@@ -39,7 +39,7 @@ impl MasterProfil {
       })
   }
 
-  pub fn get_valide_existing_user(name: &str, master_password: &str, db: &Connection) ->Result<Self> {
+  pub fn get_valide_existing_user(name: &str, master_password: &str, db: &Pool<SqliteConnectionManager>) ->Result<Self> {
       let mut user_from_db = Self::get_by_name(name, db)?;
       Self::verify_password(master_password, &user_from_db.master_password)?;
       user_from_db.derivated_key = Some(Crypto::create_key_from_password(master_password, &user_from_db.salt));
@@ -51,8 +51,9 @@ impl MasterProfil {
       Ok(())
   }
 
-  pub fn get_by_name(name: &str ,db: &Connection) -> Result<Self> {
-      let profil = db.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {
+  pub fn get_by_name(name: &str ,db: &Pool<SqliteConnectionManager>) -> Result<Self> {
+      let conn = db.get()?;
+      let profil = conn.query_row("SELECT * FROM master_profil WHERE name = ?1", params![name], |row| {
         let uid = convert_uid_from_db(row.get(1)?)?;
         Ok(MasterProfil {
                         db_id: row.get(0)?,

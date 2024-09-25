@@ -2,7 +2,7 @@ import { Button } from "@nextui-org/react";
 
 import { useState } from "react";
 import "./App.css";
-import { add_profil } from "./backend_fn.tsx";
+import { add_profil, connect_profil } from "./backend_fn.tsx";
 import LoginModal from "./components/Modal";
 import logo from "./media/img/logo_transparent.svg";
 
@@ -17,8 +17,8 @@ function App() {
         <p className="SFMono-Regular font-bold text-4xl">HERAKLES</p>
       </div>
       <div className="flex flex-row gap-4">
-      <LoginModal onSignIn={add_profil}/>
-      <LoginModal buttonLabel="Sign in"/>
+      <LoginModal buttonLabel="Sign in" onSignIn={connect_profil}/>
+      <LoginModal buttonLabel="Register" onSignIn={add_profil}/>
         <Button size="lg" className="btn-custom">
             Add Profil
         </Button>

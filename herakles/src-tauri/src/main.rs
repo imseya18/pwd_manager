@@ -23,7 +23,11 @@ fn add_profil(database: tauri::State<Database>, name: &str, password: &str) -> R
    Ok(())
 }
 
-
+#[tauri::command]
+fn verify_profil(database: tauri::State<Database>, name: &str, password: &str) -> Result<()>{
+   let user = MasterProfil::get_valide_existing_user(name, password, &database.db)?;
+   Ok(())
+}
 
 fn main() {
     tauri::Builder::default()
@@ -32,7 +36,7 @@ fn main() {
           app.manage(database);
           Ok(())
         })
-        .invoke_handler(tauri::generate_handler![add_profil])
+        .invoke_handler(tauri::generate_handler![add_profil, verify_profil])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

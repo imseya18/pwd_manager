@@ -2,14 +2,14 @@ import { Button } from "@nextui-org/react";
 
 import { useState } from "react";
 import "./App.css";
+import { add_profil } from "./backend_fn.tsx";
 import LoginModal from "./components/Modal";
 import logo from "./media/img/logo_transparent.svg";
 
 
-
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  console.log("add_profil is: ", typeof add_profil);
   return (
     <div className="flex flex-col items-center justify-center h-screen gap-8 `${isModalOpen ? 'filter blur-sm' : ''}">
       <div className="flex flex-col items-center justify-center">
@@ -17,7 +17,8 @@ function App() {
         <p className="SFMono-Regular font-bold text-4xl">HERAKLES</p>
       </div>
       <div className="flex flex-row gap-4">
-      <LoginModal />
+      <LoginModal onSignIn={add_profil}/>
+      <LoginModal buttonLabel="Sign in"/>
         <Button size="lg" className="btn-custom">
             Add Profil
         </Button>

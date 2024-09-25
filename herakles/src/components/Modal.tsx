@@ -9,38 +9,43 @@ import {
   useDisclosure
 } from '@nextui-org/react';
 import React, { useRef } from 'react';
-import { add_profil } from '../backend_fn.tsx';
 import { LockIcon } from './LockIcon.jsx'; // Chemin vers vos icônes
 import { MailIcon } from './MailIcon.jsx';
 
-const LoginModal: React.FC = () => {
+interface LoginModalProps {
+  buttonLabel?: string; // Label du bouton (par défaut : "Connexion")
+  onSignIn:(accountName: string, password: string) => Promise<void> | void; // Fonction passée en prop pour l'action à exécuter sur "Sign in"
+}
+
+const LoginModal: React.FC<LoginModalProps> = ({ buttonLabel = "Connexion", onSignIn }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const accountNameRef = useRef(null);
   const passwordRef = useRef(null);
+  console.log("onSignIn is:", typeof onSignIn);
 
-   const handleSignIn = async () => {
-     const accountName = accountNameRef.current.value;
-     const password = passwordRef.current.value;
+  const handleSignIn = async () => {
+    const accountName = accountNameRef.current.value;
+    const password = passwordRef.current.value;
 
-     if (!accountName || !password) {
-       console.log("Please fill in all fields.");
-       return;
-     }
+    if (!accountName || !password) {
+      console.log("Please fill in all fields.");
+      return;
+    }
 
-     try {
-        await add_profil(accountName, password);
-     }
-     catch(error){
-       console.error("Erreur lors de l'ajout du profil :", error);
-     }
-
+    try {
+      await onSignIn(accountName, password);
+      onOpenChange();
+    }
+    catch(error){
+      console.error("Erreur lors de l'ajout du profil :", error);
+    }
    };
 
   return (
     <>
       {/* Bouton pour ouvrir le Modal */}
       <Button onPress={onOpen} className='btn-custom h-[48px]'>
-        Connexion
+        {buttonLabel}
       </Button>
 
       {/* Modal */}

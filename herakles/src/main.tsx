@@ -8,7 +8,6 @@ import {ThemeProvider as NextThemesProvider} from "next-themes";
 
 import logo from './media/img/logo_transparent.svg';
 
-
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <NextUIProvider>

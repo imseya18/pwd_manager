@@ -59,3 +59,8 @@ html {
 .pwd-top-margin {
   margin-top: 40px !important;
 }
+
+.avatar-img-selection {
+  /* background: #2a2a41; */
+  border-radius: 15px;
+}

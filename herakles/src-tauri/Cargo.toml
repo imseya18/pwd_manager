@@ -32,6 +32,7 @@ hex-literal = "0.3"
 thiserror = "1.0"
 r2d2 = "0.8"
 r2d2_sqlite = "0.25"
+serde_with = "1.11.0"
 
 [dependencies.uuid]
 version = "1.10.0"

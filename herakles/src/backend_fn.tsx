@@ -20,3 +20,23 @@ export async function connect_profil(name: string, password: string) {
     throw(error)
   }
 }
+
+export async function get_vault_by_id(user_id: number) {
+  try {
+    await invoke("get_vault_by_id", {user_id});
+    console.log("get_vault_by_id");
+  }
+  catch (error) {
+    throw(error)
+  }
+}
+
+export async function add_vault(user_id: number, name:string) {
+  try {
+    await invoke("create_vault", {user_id:user_id, name:name});
+    console.log("create_vault");
+  }
+  catch (error) {
+    throw(error)
+  }
+}

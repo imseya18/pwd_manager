@@ -5,11 +5,17 @@ use r2d2_sqlite::SqliteConnectionManager;
 use r2d2::Pool;
 use bcrypt::{hash, verify, DEFAULT_COST, BcryptError};
 use uuid::Uuid;
+use serde::Serialize;
+use serde_with::DisplayFromStr;
+use serde_with::serde_as;
+
 use super::{MyError, Result};
 
-#[derive(Debug)]
+#[serde_as]
+#[derive(Debug, Serialize)]
 pub struct MasterProfil {
   pub db_id: Option<i64>,
+  #[serde_as(as = "DisplayFromStr")]
   pub uid: Uuid,
   pub name: String,
   pub master_password: String,

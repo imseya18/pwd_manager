@@ -7,8 +7,9 @@ use crate::utils::convert_uid_from_db;
 // pub use account::Account;
 pub use master_profil::MasterProfil;
 pub use traits::Insertable;
-// pub use vault::Vault;
+pub use vault::Vault;
 pub use crate::error::MyError;
+pub use serde::Serialize;
 
 //pub type Error = Box<dyn std::error::Error>;
 pub type Result<T> = core::result::Result<T, MyError>;

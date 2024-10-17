@@ -1,27 +1,30 @@
 import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure
+    Button,
+    Input,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader
 } from '@nextui-org/react';
 import React, { useRef } from 'react';
 import { LockIcon } from './LockIcon.jsx'; // Chemin vers vos icônes
 import { MailIcon } from './MailIcon.jsx';
 
+// interface LoginModalProps {
+//   buttonLabel?: string; // Label du bouton (par défaut : "Connexion")
+//   onSignIn:(accountName: string, password: string) => Promise<void> | void; // Fonction passée en prop pour l'action à exécuter sur "Sign in"
+// }
+
 interface LoginModalProps {
-  buttonLabel?: string; // Label du bouton (par défaut : "Connexion")
+  isOpen?: boolean;
+  onClose: () => void;
   onSignIn:(accountName: string, password: string) => Promise<void> | void; // Fonction passée en prop pour l'action à exécuter sur "Sign in"
 }
 
-const LoginModal: React.FC<LoginModalProps> = ({ buttonLabel = "Connexion", onSignIn }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose, onSignIn, setIsLogin}) => {
   const accountNameRef = useRef(null);
   const passwordRef = useRef(null);
-  console.log("onSignIn is:", typeof onSignIn);
 
   const handleSignIn = async () => {
     const accountName = accountNameRef.current.value;
@@ -34,7 +37,8 @@ const LoginModal: React.FC<LoginModalProps> = ({ buttonLabel = "Connexion", onSi
 
     try {
       await onSignIn(accountName, password);
-      onOpenChange();
+      onClose();
+      setIsLogin(true);
     }
     catch(error){
       console.error("Erreur lors de l'ajout du profil :", error);
@@ -43,15 +47,11 @@ const LoginModal: React.FC<LoginModalProps> = ({ buttonLabel = "Connexion", onSi
 
   return (
     <>
-      {/* Bouton pour ouvrir le Modal */}
-      <Button onPress={onOpen} className='btn-custom h-[48px]'>
-        {buttonLabel}
-      </Button>
 
       {/* Modal */}
       <Modal
         isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        onOpenChange={onClose}
         placement="top-center"
       >
         <ModalContent>

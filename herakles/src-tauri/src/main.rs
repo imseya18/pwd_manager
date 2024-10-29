@@ -46,8 +46,8 @@ fn get_vault_by_id(database: tauri::State<Database>, user_id: i64) -> Result<Vec
                               },
                         })
                         .collect();
-  for vault in vaults_response.iter(){
-    println!("vault = {:?}", vault.success);
+  for vault in vaults_response.iter() {
+    println!("vault = {:?}", vault);
   }
   Ok(vaults_response)
 }

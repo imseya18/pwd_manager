@@ -22,7 +22,7 @@ pub struct Vault {
   updated_at: i64
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct VaultResult {
     pub success: Option<Vault>,
     pub error: Option<String>,

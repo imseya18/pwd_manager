@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/tauri";
-
+import { VaultResult } from "./types/vault";
 export async function add_profil(name: string, password: string) {
   try {
     await invoke("add_profil", {name, password});
@@ -21,10 +21,10 @@ export async function connect_profil(name: string, password: string) {
   }
 }
 
-export async function get_vault_by_id(user_id: number) {
+export async function get_vault_by_id(user_id: number) : Promise<VaultResult[]> {
   try {
-    await invoke("get_vault_by_id", {user_id});
-    console.log("get_vault_by_id");
+    const vaults: VaultResult[] = await invoke("get_vault_by_id", { user_id });
+    return vaults;
   }
   catch (error) {
     throw(error)

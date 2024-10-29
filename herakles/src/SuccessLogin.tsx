@@ -1,11 +1,13 @@
 import { Button } from "@nextui-org/react";
+import { VaultResult } from "./types/vault";
+import
 import "./App.css";
 import { add_vault, get_vault_by_id } from "./backend_fn";
 import logo from "./media/img/logo_transparent.svg";
 
 function SuccessLogin() {
-  console.log('SuccesLogin page');
   let vault_number = 1;
+  const [showVaults, setShowVaults] = useState
   const handleGetVault = async () => {
     try {
       await get_vault_by_id(22);

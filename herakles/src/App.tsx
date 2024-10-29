@@ -1,76 +1,54 @@
+import { Button } from "@nextui-org/react";
+
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import {Button, ButtonGroup} from "@nextui-org/react";
-import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
+import { add_profil, connect_profil } from "./backend_fn.tsx";
+import LoginModal from "./components/Modal";
+import logo from "./media/img/logo_transparent.svg";
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
-
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
+const modalTypes = {
+  login: {
+    onSignIn: connect_profil,
+  },
+  register: {
+    onSignIn: add_profil
   }
+}
+
+function Loging({setIsLogin}) {
+  const [modalType, setModalType] = useState<null | string>(null);
 
   return (
-    <div className="container">
-      <div className="flex flex-wrap gap-4 items-center">
-      <Button color="primary" variant="solid">
-        Solid
-      </Button>
-      <Button color="primary" variant="faded">
-        Faded
-      </Button>  
-      <Button color="primary" variant="bordered">
-        Bordered
-      </Button>  
-      <Button color="primary" variant="light">
-        Light
-      </Button>  
-      <Button color="primary" variant="flat">
-        Flat
-      </Button>  
-      <Button color="primary" variant="ghost">
-        Ghost
-      </Button>  
-      <Button color="primary" variant="shadow">
-        Shadow
-      </Button>  
-    </div>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col items-center justify-center h-screen gap-8 `${isModalOpen ? 'filter blur-sm' : ''}">
+      <div className="flex flex-col items-center justify-center">
+        <img src={logo} className="w-[300px]"></img>
+        <p className="SFMono-Regular font-bold text-4xl">HERAKLES</p>
       </div>
-
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-
-      <p>{greetMsg}</p>
+      <div className="flex flex-row gap-4">
+        <Button onPress={() => setModalType('login')} size="lg" className="btn-custom">
+          Sign in
+        </Button>
+        <Button onPress={() => setModalType('register')} size="lg" className="btn-custom">
+          register
+        </Button>
+        {modalType && (<LoginModal
+          isOpen={true}
+          onClose={() => setModalType(null)}
+          onSignIn={modalTypes[modalType].onSignIn}
+          setIsLogin={setIsLogin}
+        />)}
+        <Button size="lg" className="btn-custom">
+            Add Profil
+        </Button>
+        <Button size="lg" className="btn-custom">
+            Add Vault
+        </Button>
+        <Button size="lg" className="btn-custom">
+            Add account
+        </Button>
+      </div>
     </div>
   );
 }
 
-export default App;
+export default Loging;

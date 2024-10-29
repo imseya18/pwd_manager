@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer components {
+  .btn-custom {
+    @apply w-[200px] hover:bg-gradient-to-tr focus:bg-gradient-to-tr from-orange-500 to-red-500;
+  }
+}
 
 html {
   background-color: hsl(var(--nextui-background));

@@ -1,0 +1,12 @@
+{
+  "crates": [
+    {
+      "root_module": "./src-tauri/src/main.rs",
+      "edition": "2021",
+      "deps": [],
+      "cfg": [],
+      "env": {},
+      "is_workspace_member": true
+    }
+  ]
+}

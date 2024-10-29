@@ -1,15 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import { NextUIProvider, Card, Skeleton , Chip, ScrollShadow} from '@nextui-org/react';
-import {Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Textarea} from "@nextui-org/react";
-import {Image} from "@nextui-org/image";
-import img_locker from '../media/img/locker2.svg';
-import img_edit from '../media/img/edit1.svg';
-import SimpleBar from 'simplebar-react';
+import { useDisclosure } from "@nextui-org/react";
+import React, { useEffect, useState } from 'react';
 import 'simplebar-react/dist/simplebar.min.css';
 import '../App.css';
+import img_edit from '../media/img/edit1.svg';
+import img_locker from '../media/img/locker2.svg';
 
-import VaultModal from './vault/VaultModal.tsx'
-import VaultCard from './vault/VaultCard.tsx'
+import { VaultCard } from './vault/VaultCard.tsx';
+import VaultModal from './vault/VaultModal.tsx';
 import VaultSkeleton from './vault/VaultSkeleton.tsx';
 
 const Vault = () => {
@@ -48,7 +45,7 @@ const Vault = () => {
   };
 
   useEffect(() => {
-      
+
 
     function adjustContainerWidth() {
       const container = document.getElementById('container_vault');
@@ -87,7 +84,7 @@ const Vault = () => {
         />
   ));
 
-  
+
 
   return (
     <>

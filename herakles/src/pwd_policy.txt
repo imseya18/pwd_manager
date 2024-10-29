@@ -1,0 +1,6 @@
+minimum 1 minuscule
+minimum 1 majuscule
+minimum 1 caractère sépcial (!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~)
+minimum 1 chiffre
+minimum 12 caractères
+

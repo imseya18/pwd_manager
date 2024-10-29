@@ -39,15 +39,15 @@ const Login = () => {
           <h1 className="mb-4 text-8xl font-extrabold leading-none tracking-tight text-gray-900 md:text-8xl lg:text-8xl dark:text-white">LOGIN</h1>
         </div>
 
-          <LoginChooseAvatar/>
+          {/* <LoginChooseAvatar/> */}
 
-        {/* {!isAccountVisible ? (
+        {!isAccountVisible ? (
         <div className='flex flex-row justify-center items-center flex-wrap mt-4'>
           {loginCards}
         </div>
       ) : (
         <LoginField account={selectedUser} onClose={handleClose} />
-      )} */}
+      )}
     </>
   );
 };

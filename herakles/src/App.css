@@ -64,3 +64,29 @@ html {
   /* background: #2a2a41; */
   border-radius: 15px;
 }
+
+.text-danger {
+	white-space: pre-line; /* Cela respectera vos sauts de ligne et ajoutera des cassures automatiques si nécessaire */
+  }
+
+.passwordProgressBar {
+	transition: all 0.2s;
+}
+
+input::-ms-reveal,
+input::-ms-clear,
+input::-webkit-credentials-auto-fill-button,
+input::-webkit-inner-spin-button,
+input::-webkit-search-cancel-button {
+    display: none;
+}
+
+input[type='password']::-webkit-outer-spin-button,
+input[type='password']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type='password'] {
+    -webkit-text-security: disc !important;
+}
